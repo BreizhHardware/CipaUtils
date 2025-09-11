@@ -1,0 +1,29 @@
+# plugin.yml
+name: CipaUtils
+version: 1.1
+main: bzh.breizhhardware.cipautils.Main
+api-version: 1.21
+commands:
+  nomorespawnprotect:
+    description: Contrôle la protection du spawn
+    usage: /nomorespawnprotect [toggle|status]
+    aliases: [nmsp]
+    permission: nomorespawnprotect.admin
+  waystone:
+    description: Gestion des waystones
+    usage: /waystone [give|list|tp|info] [args...]
+    aliases: [ws]
+    permission: cipautils.waystone.use
+permissions:
+  nomorespawnprotect.admin:
+    description: Permet de contrôler les paramètres du plugin
+    default: op
+  cipautils.waystone.use:
+    description: Permet d'utiliser les waystones
+    default: true
+  cipautils.waystone.give:
+    description: Permet d'obtenir des items waystone
+    default: op
+  cipautils.waystone.admin:
+    description: Permet de détruire toutes les waystones
+    default: op
