@@ -77,6 +77,9 @@ public class WaystoneListener implements Listener {
                     waystoneManager.removeWaystone(block.getLocation());
                     player.sendMessage(ChatColor.YELLOW + "Waystone '" + waystone.getName() + "' supprimée");
 
+                    // Empêcher le drop naturel de la loadstone
+                    event.setDropItems(false);
+
                     // Donner un item waystone au joueur
                     ItemStack waystoneItem = createWaystoneItem();
                     player.getInventory().addItem(waystoneItem);

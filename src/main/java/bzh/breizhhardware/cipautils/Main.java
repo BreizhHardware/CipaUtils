@@ -207,6 +207,9 @@ public class Main extends JavaPlugin {
 
         for (Waystone waystone : waystoneManager.getAllWaystones()) {
             if (waystone.getOwner().equals(player.getUniqueId().toString())) {
+                if (!waystone.getLocation().getWorld().equals(player.getWorld())) {
+                    continue; // Ignore les waystones dans un autre monde
+                }
                 double distance = waystone.getLocation().distance(player.getLocation());
                 if (distance < closestDistance && distance <= 5.0) { // Dans un rayon de 5 blocs
                     closestDistance = distance;
