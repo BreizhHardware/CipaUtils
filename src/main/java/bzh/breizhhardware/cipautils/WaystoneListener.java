@@ -157,6 +157,13 @@ public class WaystoneListener implements Listener {
                     return;
                 }
 
+                // Vérifier la dimension
+                if (!currentWaystone.getLocation().getWorld().getName().equals(targetWaystone.getLocation().getWorld().getName())) {
+                    player.sendMessage(ChatColor.RED + "Impossible de se téléporter entre dimensions !");
+                    player.closeInventory();
+                    return;
+                }
+
                 // Téléporter le joueur
                 Location teleportLocation = targetWaystone.getLocation().clone().add(0.5, 1, 0.5);
 
@@ -220,4 +227,3 @@ public class WaystoneListener implements Listener {
         return name;
     }
 }
-

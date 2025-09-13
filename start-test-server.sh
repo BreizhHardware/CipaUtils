@@ -9,7 +9,7 @@ NC='\033[0m' # No Color
 
 # Variables de configuration
 SERVER_DIR="test-server"
-PLUGIN_JAR="CipaUtils-1.0.jar"
+PLUGIN_JAR="CipaUtils-1.1.jar"
 PAPER_VERSION="1.21.8"
 PAPER_BUILD="60"
 

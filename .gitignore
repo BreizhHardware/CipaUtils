@@ -40,3 +40,7 @@ build/
 test-server
 test-server/
 test-server/*
+
+.idea
+.idea/
+.idea/*

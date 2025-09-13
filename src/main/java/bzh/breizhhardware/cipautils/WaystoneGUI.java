@@ -46,11 +46,6 @@ public class WaystoneGUI {
             ItemStack item = createWaystoneMenuItem(waystone, player);
             gui.setItem(i, item);
         }
-        
-        // Debug: afficher le nombre de waystones chargées
-        plugin.getLogger().info("Waystones disponibles: " + availableWaystones.size());
-        plugin.getLogger().info("Taille du GUI: " + size + " slots");
-        plugin.getLogger().info("Slots pour waystones: " + maxWaystoneSlots);
 
         // Ajouter des items de décoration
         addDecorationItems(gui, size);
@@ -147,9 +142,6 @@ public class WaystoneGUI {
         if (meta == null || !meta.hasLore()) return null;
         
         List<String> lore = meta.getLore();
-        for (int i = 0; i < lore.size(); i++) {
-            plugin.getLogger().info("  Ligne " + i + ": '" + lore.get(i) + "'");
-        }
 
         for (String line : lore) {
             // Nettoyer la ligne de tous les codes couleur pour la comparaison
