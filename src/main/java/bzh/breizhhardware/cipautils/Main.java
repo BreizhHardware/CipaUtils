@@ -1,5 +1,6 @@
 package bzh.breizhhardware.cipautils;
 
+import bzh.breizhhardware.cipautils.grave.GraveListener;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -31,6 +32,8 @@ public class Main extends JavaPlugin {
 
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new WaystoneListener(this, waystoneManager), this);
+        // Enregistrer le listener de tombe
+        getServer().getPluginManager().registerEvents(new GraveListener(this), this);
 
         // Enregistrer les commandes
         getCommand("nomorespawnprotect").setExecutor(this);
