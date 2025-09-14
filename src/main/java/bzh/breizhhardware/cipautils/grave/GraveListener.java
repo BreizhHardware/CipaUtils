@@ -125,12 +125,13 @@ public class GraveListener implements Listener {
                 if (item != null) block.getWorld().dropItemNaturally(block.getLocation(), item);
             }
             graveInventories.remove(loc);
+            graves.remove(loc);
+            event.setDropItems(false);
+            if (holoId != null && Bukkit.getEntity(holoId) != null) {
+                Bukkit.getEntity(holoId).remove();
+            }
         }
-        graves.remove(loc);
-        event.setDropItems(false);
-        if (holoId != null && Bukkit.getEntity(holoId) != null) {
-            Bukkit.getEntity(holoId).remove();
-        }
+        // Si ce n'est pas une tombe, ne pas annuler les drops
     }
 
     private Block findBarrelLocation(Location loc) {
