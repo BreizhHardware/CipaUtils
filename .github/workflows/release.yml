@@ -1,0 +1,56 @@
+name: Release & Version Bump
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  build-release-bump:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '21'
+
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version (patch)
+        id: bump_version
+        run: |
+          NEW_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | awk -F. '{$NF+=1; OFS="."; print $0}')
+          mvn versions:set -DnewVersion=$NEW_VERSION
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update plugin.yml and scripts
+        run: |
+          sed -i "s/^version: .*/version: ${{ env.new_version }}/" src/main/resources/plugin.yml
+          sed -i "s/^PLUGIN_VERSION=.*/PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.sh
+          sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
+
+      - name: Commit version bump
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
+          git commit -m "Bump version for next development cycle"
+          git push
