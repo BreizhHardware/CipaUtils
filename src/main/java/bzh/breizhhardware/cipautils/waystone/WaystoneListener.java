@@ -27,7 +27,7 @@ public class WaystoneListener implements Listener {
     private final WaystoneGUI waystoneGUI;
     private final Map<UUID, Long> lastInteraction = new HashMap<>();
     private final Map<UUID, Waystone> playerCurrentWaystone = new HashMap<>();
-    private static final long INTERACTION_COOLDOWN = 3000; // 3 secondes
+    private static final long INTERACTION_COOLDOWN = 3000; // 3 seconds
 
     public WaystoneListener(Main plugin, WaystoneManager waystoneManager) {
         this.plugin = plugin;
@@ -41,9 +41,9 @@ public class WaystoneListener implements Listener {
         Player player = event.getPlayer();
         ItemStack item = event.getItemInHand();
 
-        // Vérifier si c'est un bloc waystone craftable
+        // Check if it's a craftable waystone block
         if (block.getType() == Material.LODESTONE && isWaystoneItem(item)) {
-            // Créer une nouvelle waystone avec un nom par défaut
+            // Create a new waystone with a default name
             String defaultName = generateWaystoneName(player);
 
             boolean success = waystoneManager.createWaystone(
@@ -71,17 +71,17 @@ public class WaystoneListener implements Listener {
         if (block.getType() == Material.LODESTONE) {
             Waystone waystone = waystoneManager.getWaystoneAt(block.getLocation());
             if (waystone != null) {
-                // Vérifier si le joueur peut détruire cette waystone
+                // Check if the player can destroy this waystone
                 if (waystone.getOwner().equals(player.getUniqueId().toString()) ||
                     player.hasPermission("cipautils.waystone.admin")) {
 
                     waystoneManager.removeWaystone(block.getLocation());
                     player.sendMessage(ChatColor.YELLOW + "Waystone '" + waystone.getName() + "' supprimée");
 
-                    // Empêcher le drop naturel de la loadstone
+                    // Prevent natural drop of the lodestone
                     event.setDropItems(false);
 
-                    // Donner un item waystone au joueur
+                    // Give a waystone item to the player
                     ItemStack waystoneItem = createWaystoneItem();
                     player.getInventory().addItem(waystoneItem);
                 } else {
@@ -102,7 +102,7 @@ public class WaystoneListener implements Listener {
         if (block.getType() == Material.LODESTONE) {
             Waystone waystone = waystoneManager.getWaystoneAt(block.getLocation());
             if (waystone != null) {
-                // Vérifier le cooldown
+                // Check cooldown
                 UUID playerId = player.getUniqueId();
                 long currentTime = System.currentTimeMillis();
                 if (lastInteraction.containsKey(playerId) &&
@@ -111,10 +111,10 @@ public class WaystoneListener implements Listener {
                 }
                 lastInteraction.put(playerId, currentTime);
 
-                // Stocker la waystone actuelle du joueur
+                // Store the player's current waystone
                 playerCurrentWaystone.put(playerId, waystone);
 
-                // Ouvrir l'interface graphique
+                // Open the GUI
                 waystoneGUI.openWaystoneMenu(player, waystone);
                 event.setCancelled(true);
             }
@@ -135,13 +135,13 @@ public class WaystoneListener implements Listener {
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null) return;
 
-        // Gérer la fermeture
+        // Handle closing
         if (clickedItem.getType() == Material.BARRIER) {
             player.closeInventory();
             return;
         }
 
-        // Gérer la téléportation
+        // Handle teleportation
         if (clickedItem.getType() == Material.ENDER_PEARL) {
 
             Waystone targetWaystone = waystoneGUI.getWaystoneFromMenuItem(clickedItem);
@@ -155,20 +155,20 @@ public class WaystoneListener implements Listener {
                     return;
                 }
 
-                // Vérifier si le joueur peut accéder à cette waystone
+                // Check if the player can access this waystone
                 if (!targetWaystone.isPublic() && !targetWaystone.getOwner().equals(player.getUniqueId().toString())) {
                     player.sendMessage(ChatColor.RED + "Vous n'avez pas accès à cette waystone !");
                     return;
                 }
 
-                // Vérifier la dimension
+                // Check dimension
                 if (!currentWaystone.getLocation().getWorld().getName().equals(targetWaystone.getLocation().getWorld().getName())) {
                     player.sendMessage(ChatColor.RED + "Impossible de se téléporter entre dimensions !");
                     player.closeInventory();
                     return;
                 }
 
-                // Téléporter le joueur
+                // Teleport the player
                 Location teleportLocation = targetWaystone.getLocation().clone().add(0.5, 1, 0.5);
 
                 player.closeInventory();
@@ -181,7 +181,7 @@ public class WaystoneListener implements Listener {
                     player.sendMessage(ChatColor.RED + "Erreur lors de la téléportation !");
                 }
 
-                // Nettoyer la waystone actuelle stockée
+                // Clean up the stored current waystone
                 playerCurrentWaystone.remove(player.getUniqueId());
             } else {
                 player.sendMessage(ChatColor.RED + "Erreur: Impossible de récupérer les informations de la waystone !");
@@ -222,7 +222,7 @@ public class WaystoneListener implements Listener {
         String name = baseName;
         int suffix = 1;
 
-        // Vérifier l'unicité du nom
+        // Check name uniqueness
         while (waystoneManager.getWaystoneByName(name) != null) {
             name = baseName + " (" + suffix + ")";
             suffix++;

@@ -30,11 +30,11 @@ import java.util.HashSet;
 
 public class GraveListener implements Listener {
     private final JavaPlugin plugin;
-    // Map pour stocker location -> hologram UUID
+    // Map to store the graves and their associated hologram ArmorStand UUIDs
     private final Map<Location, UUID> graves = new HashMap<>();
-    // Map pour stocker les inventaires custom des tombes
+    // Map to store the inventories of each grave
     private final Map<Location, Inventory> graveInventories = new HashMap<>();
-    // Set pour stocker les joueurs qui ont désactivé le message de mort
+    // Set to store players who have disabled death messages
     private final Set<UUID> deathMsgDisabled = new HashSet<>();
 
     public GraveListener(JavaPlugin plugin) {
@@ -46,7 +46,7 @@ public class GraveListener implements Listener {
         Player player = event.getEntity();
         Location deathLoc = player.getLocation();
 
-        // Message d'information si activé
+        // Information message if not disabled
         if (!deathMsgDisabled.contains(player.getUniqueId())) {
             player.sendMessage("§eTip: Shift-right click your grave to automatically recover all your items!");
             player.sendMessage("§7(Use /toggledeathmsg to disable this message)");
@@ -61,17 +61,17 @@ public class GraveListener implements Listener {
         BlockState state = barrelBlock.getState();
         if (!(state instanceof Barrel)) return;
 
-        // Création d'un inventaire custom de 54 cases
+        // Creation of a custom inventory for the grave (54 slots)
         Inventory graveInventory = Bukkit.createInventory(null, 54, "Grave de " + player.getName());
         graveInventories.put(barrelBlock.getLocation(), graveInventory);
 
-        // Ajout des items de la mort
+        // Transfer items to the grave inventory
         for (ItemStack item : event.getDrops()) {
             if (item != null) graveInventory.addItem(item);
         }
         event.getDrops().clear();
 
-        // Création du hologramme
+        // Creation of the hologram above the grave
         String timeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         String customName = player.getName() + " - " + timeStr;
         Location hologramLoc = barrelBlock.getLocation().add(0.5, 1.2, 0.5);
@@ -95,7 +95,7 @@ public class GraveListener implements Listener {
         if (graveInventory == null) return;
         event.setCancelled(true);
         Player player = event.getPlayer();
-        // Si le joueur fait un shift-clic droit
+        // If the player is sneaking and right-clicks, try to transfer all items
         if (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK && player.isSneaking()) {
             boolean allAdded = true;
             ItemStack[] contents = graveInventory.getContents();
@@ -105,7 +105,7 @@ public class GraveListener implements Listener {
                     HashMap<Integer, ItemStack> notAdded = player.getInventory().addItem(item);
                     if (!notAdded.isEmpty()) {
                         allAdded = false;
-                        // Remettre les items non ajoutés dans la tombe
+                        // Re-add the items that couldn't be added back to the grave inventory
                         for (ItemStack left : notAdded.values()) {
                             graveInventory.addItem(left);
                         }
@@ -125,7 +125,7 @@ public class GraveListener implements Listener {
                 player.sendMessage("§eVotre inventaire est plein, certains items sont restés dans la tombe !");
             }
         } else {
-            // Sinon, ouvrir l'inventaire normalement
+            // Otherwise, just open the grave inventory
             player.openInventory(graveInventory);
         }
     }
@@ -133,7 +133,7 @@ public class GraveListener implements Listener {
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory inv = event.getInventory();
-        // Vérifie si c'est un inventaire de tombe
+        // Check if it's a grave inventory
         if (inv.getSize() != 54 || !event.getView().getTitle().startsWith("Grave de ")) return;
         Location loc = null;
         for (Map.Entry<Location, Inventory> entry : graveInventories.entrySet()) {
@@ -172,23 +172,23 @@ public class GraveListener implements Listener {
                 Bukkit.getEntity(holoId).remove();
             }
         }
-        // Si ce n'est pas une tombe, ne pas annuler les drops
+        // If it's not a grave, allow normal breaking
     }
 
     @EventHandler
     public void onBlockExplode(org.bukkit.event.block.BlockExplodeEvent event) {
-        // Empêche la destruction des tombes (et pas tous les barrels) par explosion de bloc
+        // Disable destruction of graves (and not all barrels) by block explosions
         event.blockList().removeIf(block -> graveInventories.containsKey(block.getLocation()));
     }
 
     @EventHandler
     public void onEntityExplode(org.bukkit.event.entity.EntityExplodeEvent event) {
-        // Empêche la destruction des tombes (et pas tous les barrels) par explosion d'entité
+        // Disable destruction of graves (and not all barrels) by entity explosions
         event.blockList().removeIf(block -> graveInventories.containsKey(block.getLocation()));
     }
 
     private Block findBarrelLocation(Location loc) {
-        // Cherche un bloc d'air au-dessus d'un bloc solide dans les 3 blocs au-dessus
+        // Search for a suitable location for the barrel within 3 blocks above the death location
         for (int y = 0; y <= 3; y++) {
             Block b = loc.clone().add(0, y, 0).getBlock();
             Block below = b.getRelative(BlockFace.DOWN);

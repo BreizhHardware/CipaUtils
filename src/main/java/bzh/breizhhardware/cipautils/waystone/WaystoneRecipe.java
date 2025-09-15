@@ -18,7 +18,7 @@ public class WaystoneRecipe {
     }
 
     public void registerRecipes() {
-        // Recette pour créer une waystone
+        // Craft for a waystone
         ItemStack waystoneItem = createWaystoneItem();
         NamespacedKey key = new NamespacedKey(plugin, "waystone");
 
