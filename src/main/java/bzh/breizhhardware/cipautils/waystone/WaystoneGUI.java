@@ -1,5 +1,6 @@
-package bzh.breizhhardware.cipautils;
+package bzh.breizhhardware.cipautils.waystone;
 
+import bzh.breizhhardware.cipautils.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

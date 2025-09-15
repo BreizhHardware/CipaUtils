@@ -1,4 +1,4 @@
-package bzh.breizhhardware.cipautils;
+package bzh.breizhhardware.cipautils.waystone;
 
 import org.bukkit.Location;
 
