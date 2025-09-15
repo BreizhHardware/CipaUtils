@@ -1,5 +1,6 @@
-package bzh.breizhhardware.cipautils;
+package bzh.breizhhardware.cipautils.waystone;
 
+import bzh.breizhhardware.cipautils.Main;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;

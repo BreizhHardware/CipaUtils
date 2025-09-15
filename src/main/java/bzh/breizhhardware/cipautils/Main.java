@@ -1,6 +1,10 @@
 package bzh.breizhhardware.cipautils;
 
 import bzh.breizhhardware.cipautils.grave.GraveListener;
+import bzh.breizhhardware.cipautils.waystone.Waystone;
+import bzh.breizhhardware.cipautils.waystone.WaystoneListener;
+import bzh.breizhhardware.cipautils.waystone.WaystoneManager;
+import bzh.breizhhardware.cipautils.waystone.WaystoneRecipe;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,6 +18,7 @@ import java.util.List;
 public class Main extends JavaPlugin {
     private boolean spawnProtectionDisabled;
     private WaystoneManager waystoneManager;
+    private GraveListener graveListener;
 
     @Override
     public void onEnable() {
@@ -33,11 +38,13 @@ public class Main extends JavaPlugin {
         // Enregistrer les listeners
         getServer().getPluginManager().registerEvents(new WaystoneListener(this, waystoneManager), this);
         // Enregistrer le listener de tombe
-        getServer().getPluginManager().registerEvents(new GraveListener(this), this);
+        graveListener = new GraveListener(this);
+        getServer().getPluginManager().registerEvents(graveListener, this);
 
         // Enregistrer les commandes
         getCommand("nomorespawnprotect").setExecutor(this);
         getCommand("waystone").setExecutor(this);
+        getCommand("toggledeathmsg").setExecutor(graveListener.getToggleDeathMsgCommand());
 
         // Appliquer les paramètres
         if (spawnProtectionDisabled) {
