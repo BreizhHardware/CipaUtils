@@ -124,7 +124,9 @@ public class WaystoneManager {
     public List<Waystone> getAvailableWaystones(Player player) {
         List<Waystone> available = new ArrayList<>();
         for (Waystone waystone : waystones.values()) {
-            if (waystone.isPublic() || waystone.getOwner().equals(player.getUniqueId().toString())) {
+            // Le joueur peut accéder à la waystone si elle est publique ou s'il en est le propriétaire, mais uniquement si elle est dans le même monde
+            if ((waystone.isPublic() || waystone.getOwner().equals(player.getUniqueId().toString()))
+                && waystone.getLocation().getWorld().getName().equals(player.getWorld().getName())) {
                 available.add(waystone);
             }
         }
