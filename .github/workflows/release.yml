@@ -58,7 +58,9 @@ jobs:
         run: |
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" src/main/resources/plugin.yml
           sed -i "s/^PLUGIN_VERSION=.*/PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.sh
+          sed -i "s/^PLUGIN_JAR=.*/PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.sh
           sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
+          sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
 
       - name: Commit version bump
         run: |
