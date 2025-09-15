@@ -74,6 +74,8 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.current_version }}
+          name: CipaUtils v${{ env.current_version }}
           files: target/*.jar
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
