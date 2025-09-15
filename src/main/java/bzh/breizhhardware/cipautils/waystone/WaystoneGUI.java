@@ -25,7 +25,7 @@ public class WaystoneGUI {
     public void openWaystoneMenu(Player player, Waystone currentWaystone) {
         List<Waystone> availableWaystones = waystoneManager.getAvailableWaystones(player);
         
-        // Retirer la waystone actuelle de la liste
+        // Remove the current waystone from the list
         availableWaystones.removeIf(w -> w.getId().equals(currentWaystone.getId()));
         
         if (availableWaystones.isEmpty()) {
@@ -33,29 +33,29 @@ public class WaystoneGUI {
             return;
         }
 
-        // Calculer la taille nécessaire (laisser une ligne pour les contrôles)
+        // Calculate the required size (leave one row for controls)
         int waystoneSlots = availableWaystones.size();
-        int lines = Math.max(2, (waystoneSlots + 8) / 9 + 1); // +1 ligne pour les contrôles
+        int lines = Math.max(2, (waystoneSlots + 8) / 9 + 1); // +1 row for controls
         int size = Math.min(54, lines * 9);
 
         Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Téléportation");
         
-        // Ajouter toutes les waystones disponibles (réserver seulement la dernière ligne)
-        int maxWaystoneSlots = size - 9; // Réserver la dernière ligne pour les contrôles
+        // Add all available waystones (reserve only the last row)
+        int maxWaystoneSlots = size - 9; // Reserve the last row for controls
         for (int i = 0; i < availableWaystones.size() && i < maxWaystoneSlots; i++) {
             Waystone waystone = availableWaystones.get(i);
             ItemStack item = createWaystoneMenuItem(waystone, player);
             gui.setItem(i, item);
         }
 
-        // Ajouter des items de décoration
+        // Add decoration items
         addDecorationItems(gui, size);
         
-        // Ajouter un item d'information sur la waystone actuelle
+        // Add an info item about the current waystone
         ItemStack currentInfo = createCurrentWaystoneInfo(currentWaystone);
         gui.setItem(size - 5, currentInfo);
         
-        // Item de fermeture
+        // Close item
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
         closeMeta.setDisplayName(ChatColor.RED + "Fermer");
