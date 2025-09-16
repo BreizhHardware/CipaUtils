@@ -122,7 +122,7 @@ public class GraveListener implements Listener {
                     Bukkit.getEntity(holoId).remove();
                 }
             } else {
-                player.sendMessage("§eVotre inventaire est plein, certains items sont restés dans la tombe !");
+                player.sendMessage("§eYour inventory is full, some items remain in the grave!");
             }
         } else {
             // Otherwise, just open the grave inventory
