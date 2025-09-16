@@ -113,7 +113,7 @@ public class GraveListener implements Listener {
                 }
             }
             if (graveInventory.isEmpty()) {
-                player.sendMessage("§aTous les items ont été transférés dans votre inventaire !");
+                player.sendMessage("§aAll items have been transferred to your inventory!");
                 block.setType(Material.AIR);
                 graveInventories.remove(loc);
                 UUID holoId = graves.get(loc);
