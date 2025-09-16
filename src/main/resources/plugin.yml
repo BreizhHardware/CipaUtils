@@ -5,8 +5,8 @@ main: bzh.breizhhardware.cipautils.Main
 api-version: 1.21
 commands:
   nomorespawnprotect:
-    description: Désactive la protection du spawn
-    usage: /nomorespawnprotect
+    description: Active ou désactive la protection du spawn
+    usage: /nomorespawnprotect - Bascule la protection du spawn (active/désactive)
   waystone:
     description: Commandes pour les waystones
     usage: /waystone
