@@ -66,9 +66,38 @@ jobs:
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b bump-version/${{ env.new_version }}
           git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
           git commit -m "Bump version for next development cycle"
-          git push
+          git push origin bump-version/${{ env.new_version }}
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: bump-version/${{ env.new_version }}
+          title: "Bump version to ${{ env.new_version }}"
+          body: "Automated version bump for next development cycle."
+          base: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Enable Pull Request Auto-merge
+        uses: peter-evans/enable-pull-request-automerge@v3
+        with:
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Wait for PR to be merged
+        uses: juliangruber/sleep-action@v1
+        with:
+          time: 30s
+
+      - name: Checkout main after merge
+        run: |
+          git fetch origin main
+          git checkout main
+          git pull
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
