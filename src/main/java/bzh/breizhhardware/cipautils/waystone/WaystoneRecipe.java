@@ -1,5 +1,6 @@
-package bzh.breizhhardware.cipautils;
+package bzh.breizhhardware.cipautils.waystone;
 
+import bzh.breizhhardware.cipautils.Main;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,7 @@ public class WaystoneRecipe {
     }
 
     public void registerRecipes() {
-        // Recette pour créer une waystone
+        // Craft for a waystone
         ItemStack waystoneItem = createWaystoneItem();
         NamespacedKey key = new NamespacedKey(plugin, "waystone");
 
