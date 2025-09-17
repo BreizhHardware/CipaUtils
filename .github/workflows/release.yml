@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -38,67 +40,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Bump version (patch)
-        id: bump_version
-        run: |
-          # Nettoyer la version
-          CLEAN_VERSION=$(echo "${{ env.current_version }}" | grep -Eo '^[0-9]+(\.[0-9]+){1,2}$')
-          IFS='.' read -r a b c <<< "$CLEAN_VERSION"
-          if [ -z "$c" ]; then
-            # Version X.Y -> X.(Y+1)
-            NEW_VERSION="$a.$((b+1))"
-          else
-            # Version X.Y.Z -> X.Y.(Z+1)
-            NEW_VERSION="$a.$b.$((c+1))"
-          fi
-          mvn versions:set -DnewVersion=$NEW_VERSION
-          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
-
-      - name: Update plugin.yml and scripts
-        run: |
-          sed -i "s/^version: .*/version: ${{ env.new_version }}/" src/main/resources/plugin.yml
-          sed -i "s/^PLUGIN_VERSION=.*/PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.sh
-          sed -i "s/^PLUGIN_JAR=.*/PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.sh
-          sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
-          sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
-
-      - name: Commit version bump
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git checkout -b bump-version/${{ env.new_version }}
-          git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
-          git commit -m "Bump version for next development cycle"
-          git push origin bump-version/${{ env.new_version }}
-
-      - name: Create Pull Request
-        id: cpr
-        uses: peter-evans/create-pull-request@v6
-        with:
-          branch: bump-version/${{ env.new_version }}
-          title: "Bump version to ${{ env.new_version }}"
-          body: "Automated version bump for next development cycle."
-          base: main
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Enable Pull Request Auto-merge
-        uses: peter-evans/enable-pull-request-automerge@v3
-        with:
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-          merge-method: squash
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Wait for PR to be merged
-        uses: juliangruber/sleep-action@v1
-        with:
-          time: 30s
-
-      - name: Checkout main after merge
-        run: |
-          git fetch origin main
-          git checkout main
-          git pull
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
@@ -108,3 +49,38 @@ jobs:
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout dev branch
+        run: |
+          git fetch origin dev:dev
+          git checkout dev
+
+      - name: Bump version (patch) sur dev
+        id: bump_version_dev
+        run: |
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+(\.[0-9]+)*$' | tail -1)
+          CLEAN_VERSION=$(echo "$CURRENT_VERSION" | grep -Eo '^[0-9]+(\.[0-9]+){1,2}$')
+          IFS='.' read -r a b c <<< "$CLEAN_VERSION"
+          if [ -z "$c" ]; then
+            NEW_VERSION="$a.$((b+1))"
+          else
+            NEW_VERSION="$a.$b.$((c+1))"
+          fi
+          mvn versions:set -DnewVersion=$NEW_VERSION
+          echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Update plugin.yml and scripts sur dev
+        run: |
+          sed -i "s/^version: .*/version: ${{ env.new_version }}/" src/main/resources/plugin.yml
+          sed -i "s/^PLUGIN_VERSION=.*/PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.sh
+          sed -i "s/^PLUGIN_JAR=.*/PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.sh
+          sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
+          sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
+
+      - name: Commit version bump sur dev
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
+          git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
+          git push origin dev
