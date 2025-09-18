@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
@@ -26,6 +27,11 @@ public class RecipeManager {
         customRecipes.add(recipe);
     }
 
+    public void registerCustomRecipes() {
+        registerLightBlockRecipe();
+        registerWaystoneRecipe();
+    }
+
     public List<Recipe> getCustomRecipes() {
         return new ArrayList<>(customRecipes);
     }
@@ -37,5 +43,42 @@ public class RecipeManager {
         ShapelessRecipe recipe = new ShapelessRecipe(key, lightBlock);
         recipe.addIngredient(org.bukkit.Material.TORCH);
         registerRecipe(recipe);
+    }
+
+    private void registerWaystoneRecipe() {
+        // Craft for a waystone
+        ItemStack waystoneItem = createWaystoneItem();
+        NamespacedKey key = new NamespacedKey(plugin, "waystone");
+
+        ShapedRecipe recipe = new ShapedRecipe(key, waystoneItem);
+        recipe.shape(
+            "EDE",
+            "DLD",
+            "OOO"
+        );
+
+        recipe.setIngredient('E', org.bukkit.Material.ENDER_PEARL);
+        recipe.setIngredient('D', org.bukkit.Material.DIAMOND);
+        recipe.setIngredient('L', org.bukkit.Material.LODESTONE);
+        recipe.setIngredient('O', org.bukkit.Material.OBSIDIAN);
+
+        registerRecipe(recipe);
+        plugin.getLogger().info("Waystone recipe registered!");
+    }
+
+    private ItemStack createWaystoneItem() {
+        ItemStack item = new ItemStack(org.bukkit.Material.LODESTONE);
+        org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
+
+        meta.setDisplayName(org.bukkit.ChatColor.AQUA + "Waystone Vierge");
+        java.util.List<String> lore = java.util.Arrays.asList(
+            org.bukkit.ChatColor.GRAY + "Placez ce bloc pour créer",
+            org.bukkit.ChatColor.GRAY + "un point de téléportation",
+            org.bukkit.ChatColor.GOLD + "Craft: Ender Pearl + Diamants + Lodestone + Obsidienne",
+            org.bukkit.ChatColor.BLUE + "Clic droit après placement pour nommer"
+        );
+        meta.setLore(lore);
+        item.setItemMeta(meta);
+        return item;
     }
 }

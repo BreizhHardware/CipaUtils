@@ -5,7 +5,6 @@ import bzh.breizhhardware.cipautils.grave.GraveListener;
 import bzh.breizhhardware.cipautils.waystone.Waystone;
 import bzh.breizhhardware.cipautils.waystone.WaystoneListener;
 import bzh.breizhhardware.cipautils.waystone.WaystoneManager;
-import bzh.breizhhardware.cipautils.waystone.WaystoneRecipe;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -31,12 +30,10 @@ public class Main extends JavaPlugin {
 
         // Initialize the waystone system
         waystoneManager = new WaystoneManager(this);
-    WaystoneRecipe waystoneRecipe = new WaystoneRecipe(this);
-    RecipeManager recipeManager = new RecipeManager(this);
+        RecipeManager recipeManager = new RecipeManager(this);
 
-    // Register recipes
-    waystoneRecipe.registerRecipes();
-    recipeManager.registerLightBlockRecipe();
+        // Register recipes
+        recipeManager.registerCustomRecipes();
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new WaystoneListener(this, waystoneManager), this);
