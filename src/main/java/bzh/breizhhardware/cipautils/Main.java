@@ -1,6 +1,10 @@
 package bzh.breizhhardware.cipautils;
 
 import bzh.breizhhardware.cipautils.grave.GraveListener;
+import bzh.breizhhardware.cipautils.waystone.Waystone;
+import bzh.breizhhardware.cipautils.waystone.WaystoneListener;
+import bzh.breizhhardware.cipautils.waystone.WaystoneManager;
+import bzh.breizhhardware.cipautils.waystone.WaystoneRecipe;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,38 +18,41 @@ import java.util.List;
 public class Main extends JavaPlugin {
     private boolean spawnProtectionDisabled;
     private WaystoneManager waystoneManager;
+    private GraveListener graveListener;
 
     @Override
     public void onEnable() {
-        // Sauvegarder la configuration par défaut
+        // Save the default configuration
         saveDefaultConfig();
 
-        // Charger la configuration
+        // Load the configuration
         spawnProtectionDisabled = getConfig().getBoolean("disable-spawn-protection", true);
 
-        // Initialiser le système de waystone
+        // Initialize the waystone system
         waystoneManager = new WaystoneManager(this);
         WaystoneRecipe waystoneRecipe = new WaystoneRecipe(this);
 
-        // Enregistrer les recettes
+        // Register recipes
         waystoneRecipe.registerRecipes();
 
-        // Enregistrer les listeners
+        // Register listeners
         getServer().getPluginManager().registerEvents(new WaystoneListener(this, waystoneManager), this);
-        // Enregistrer le listener de tombe
-        getServer().getPluginManager().registerEvents(new GraveListener(this), this);
+        // Register grave listener
+        graveListener = new GraveListener(this);
+        getServer().getPluginManager().registerEvents(graveListener, this);
 
-        // Enregistrer les commandes
+        // Register commands
         getCommand("nomorespawnprotect").setExecutor(this);
         getCommand("waystone").setExecutor(this);
+        getCommand("toggledeathmsg").setExecutor(graveListener.getToggleDeathMsgCommand());
 
-        // Appliquer les paramètres
+        // Apply settings
         if (spawnProtectionDisabled) {
             disableSpawnProtection();
         }
 
-        getLogger().info("NoMoreSpawnProtect est activé !");
-        getLogger().info("Système de waystone initialisé avec recettes de craft !");
+        getLogger().info("NoMoreSpawnProtect is enabled!");
+        getLogger().info("Waystone system initialized with crafting recipes!");
     }
 
     @Override
@@ -54,7 +61,7 @@ public class Main extends JavaPlugin {
             waystoneManager.saveWaystones();
         }
         saveConfig();
-        getLogger().info("NoMoreSpawnProtect est désactivé !");
+        getLogger().info("NoMoreSpawnProtect is disabled!");
     }
 
     @Override
@@ -201,17 +208,17 @@ public class Main extends JavaPlugin {
             return true;
         }
 
-        // Trouver la waystone la plus proche du joueur
+        // Find the closest waystone to the player
         Waystone closestWaystone = null;
         double closestDistance = Double.MAX_VALUE;
 
         for (Waystone waystone : waystoneManager.getAllWaystones()) {
             if (waystone.getOwner().equals(player.getUniqueId().toString())) {
                 if (!waystone.getLocation().getWorld().equals(player.getWorld())) {
-                    continue; // Ignore les waystones dans un autre monde
+                    continue; // Ignore waystones in another world
                 }
                 double distance = waystone.getLocation().distance(player.getLocation());
-                if (distance < closestDistance && distance <= 5.0) { // Dans un rayon de 5 blocs
+                if (distance < closestDistance && distance <= 5.0) { // Within a 5 block radius
                     closestDistance = distance;
                     closestWaystone = waystone;
                 }
@@ -269,11 +276,11 @@ public class Main extends JavaPlugin {
     }
 
     private void disableSpawnProtection() {
-        // Désactiver immédiatement
+        // Disable immediately
         getServer().setSpawnRadius(0);
-        getLogger().info("Protection de spawn désactivée !");
+        getLogger().info("Spawn protection disabled!");
 
-        // Maintenir la désactivation
+        // Keep disabling
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -281,8 +288,8 @@ public class Main extends JavaPlugin {
                     getServer().setSpawnRadius(0);
                 }
             }
-        }.runTaskTimer(this, 1200L, 1200L); // Vérifier chaque minute
+        }.runTaskTimer(this, 1200L, 1200L); // Check every minute
 
-        getLogger().info("Pour une solution permanente, définissez 'spawn-protection=0' dans server.properties");
+        getLogger().info("For a permanent solution, set 'spawn-protection=0' in server.properties");
     }
 }

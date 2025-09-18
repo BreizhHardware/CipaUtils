@@ -1,7 +1,7 @@
-package bzh.breizhhardware.cipautils;
+package bzh.breizhhardware.cipautils.waystone;
 
+import bzh.breizhhardware.cipautils.Main;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -88,7 +88,7 @@ public class WaystoneManager {
 
     public boolean createWaystone(Location location, String name, String owner) {
         if (getWaystoneAt(location) != null) {
-            return false; // Une waystone existe déjà à cet endroit
+            return false; // A waystone already exists at this location
         }
 
         String id = UUID.randomUUID().toString();
@@ -124,7 +124,11 @@ public class WaystoneManager {
     public List<Waystone> getAvailableWaystones(Player player) {
         List<Waystone> available = new ArrayList<>();
         for (Waystone waystone : waystones.values()) {
-            if (waystone.isPublic() || waystone.getOwner().equals(player.getUniqueId().toString())) {
+            // The player can access the waystone if it's public or if they are the owner and in the same world
+            if ((waystone.isPublic() || waystone.getOwner().equals(player.getUniqueId().toString()))
+                && waystone.getLocation() != null
+                && waystone.getLocation().getWorld() != null
+                && waystone.getLocation().getWorld().getName().equals(player.getWorld().getName())) {
                 available.add(waystone);
             }
         }

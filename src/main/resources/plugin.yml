@@ -5,15 +5,14 @@ main: bzh.breizhhardware.cipautils.Main
 api-version: 1.21
 commands:
   nomorespawnprotect:
-    description: Contrôle la protection du spawn
-    usage: /nomorespawnprotect [toggle|status]
-    aliases: [nmsp]
-    permission: nomorespawnprotect.admin
+    description: Active ou désactive la protection du spawn
+    usage: /nomorespawnprotect - Bascule la protection du spawn (active/désactive)
   waystone:
-    description: Gestion des waystones
-    usage: /waystone [give|list|tp|info] [args...]
-    aliases: [ws]
-    permission: cipautils.waystone.use
+    description: Commandes pour les waystones
+    usage: /waystone
+  toggledeathmsg:
+    description: Active/désactive le message d'info sur la récupération automatique des tombes
+    usage: /toggledeathmsg
 permissions:
   nomorespawnprotect.admin:
     description: Permet de contrôler les paramètres du plugin

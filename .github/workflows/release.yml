@@ -17,12 +17,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'corretto'
           java-version: '21'
+
+      - name: Configurer l'identité Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
 
       - name: Get current version
         id: get_version
@@ -38,8 +46,17 @@ jobs:
       - name: Build with Maven
         run: mvn clean package
 
-      - name: Bump version (patch)
-        id: bump_version
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.current_version }}
+          name: CipaUtils v${{ env.current_version }}
+          files: target/*.jar
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout dev branch
         run: |
           git fetch origin
           git checkout dev
@@ -57,16 +74,40 @@ jobs:
           CLEAN_VERSION=$(echo "$CURRENT_VERSION" | grep -Eo '^[0-9]+(\.[0-9]+){1,2}$')
           IFS='.' read -r a b c <<< "$CLEAN_VERSION"
           if [ -z "$c" ]; then
-            # Version X.Y -> X.(Y+1)
             NEW_VERSION="$a.$((b+1))"
           else
-            # Version X.Y.Z -> X.Y.(Z+1)
             NEW_VERSION="$a.$b.$((c+1))"
           fi
-          mvn versions:set -DnewVersion=$NEW_VERSION
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Update plugin.yml and scripts
+      - name: Afficher la version du pom.xml avant bump
+        run: |
+          echo 'Version AVANT bump dans pom.xml :'
+          grep '<version>' pom.xml | head -2
+
+      - name: Préparer la branche bump-version/${{ env.new_version }}
+        run: |
+          if git ls-remote --exit-code --heads origin bump-version/${{ env.new_version }}; then
+            echo "Suppression de la branche distante existante."
+            git push origin --delete bump-version/${{ env.new_version }} || true
+          fi
+          git checkout dev
+          git branch -D bump-version/${{ env.new_version }} || true
+          git checkout -b bump-version/${{ env.new_version }}
+
+      - name: Bump version (patch) sur bump-version/${{ env.new_version }}
+        run: |
+          mvn versions:set -DnewVersion=${{ env.new_version }}
+          rm -f pom.xml.versionsBackup
+
+      - name: Afficher la version du pom.xml après bump
+        run: |
+          echo 'Version APRÈS bump dans pom.xml :'
+          grep '<version>' pom.xml | head -2
+          echo 'Diff pom.xml :'
+          git diff pom.xml
+
+      - name: Update plugin.yml and scripts sur bump-version/${{ env.new_version }}
         run: |
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" src/main/resources/plugin.yml
           sed -i "s/^PLUGIN_VERSION=.*/PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.sh
@@ -74,18 +115,26 @@ jobs:
           sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
           sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
 
-      - name: Commit version bump
+      - name: Debug - Afficher git status et git diff
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
-          git commit -m "Bump version for next development cycle"
-          git push
+          echo '--- git status ---'
+          git status
+          echo '--- git diff ---'
+          git diff
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - name: Commit version bump sur bump-version/${{ env.new_version }}
+        run: |
+          git add -u
+          git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
+          git push --force-with-lease origin bump-version/${{ env.new_version }}
+
+      - name: Create Pull Request vers dev
+        uses: peter-evans/create-pull-request@v5
         with:
-          tag_name: v${{ env.current_version }}
-          files: target/*.jar
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: bump-version/${{ env.new_version }}
+          base: dev
+          title: "Bump version for next development cycle (dev)"
+          body: "Automated version bump après release sur main."
+          labels: version-bump
+          reviewers: BreizhHardware
