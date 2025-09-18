@@ -41,8 +41,20 @@ jobs:
       - name: Bump version (patch)
         id: bump_version
         run: |
-          # Nettoyer la version
-          CLEAN_VERSION=$(echo "${{ env.current_version }}" | grep -Eo '^[0-9]+(\.[0-9]+){1,2}$')
+          git fetch origin
+          git checkout dev
+
+      - name: Reset hard sur dev pour garantir un état propre
+        run: |
+          git fetch origin
+          git checkout dev
+          git reset --hard origin/dev
+
+      - name: Calculer la nouvelle version
+        id: calc_new_version
+        run: |
+          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+(\.[0-9]+)*$' | tail -1)
+          CLEAN_VERSION=$(echo "$CURRENT_VERSION" | grep -Eo '^[0-9]+(\.[0-9]+){1,2}$')
           IFS='.' read -r a b c <<< "$CLEAN_VERSION"
           if [ -z "$c" ]; then
             # Version X.Y -> X.(Y+1)
