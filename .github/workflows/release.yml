@@ -101,3 +101,6 @@ jobs:
           base: dev
           title: "Bump version for next development cycle (dev)"
           body: "Automated version bump après release sur main."
+          labels: version-bump
+          reviewers: BreizhHardware
+
