@@ -58,12 +58,12 @@ jobs:
 
       - name: Checkout dev branch
         run: |
-          git fetch origin dev:dev
+          git fetch origin
           git checkout dev
 
       - name: Reset hard sur dev pour garantir un état propre
         run: |
-          git fetch origin dev:dev
+          git fetch origin
           git checkout dev
           git reset --hard origin/dev
 
