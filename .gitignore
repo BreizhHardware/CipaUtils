@@ -44,3 +44,5 @@ test-server/*
 .idea
 .idea/
 .idea/*
+
+pom.xml.versionsBackup

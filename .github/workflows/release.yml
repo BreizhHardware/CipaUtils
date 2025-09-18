@@ -106,7 +106,7 @@ jobs:
 
       - name: Commit version bump sur bump-version/${{ env.new_version }}
         run: |
-          git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
+          git add -u
           git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
           git push --force-with-lease origin bump-version/${{ env.new_version }}
 
