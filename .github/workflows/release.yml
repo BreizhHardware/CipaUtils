@@ -73,17 +73,15 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Préparer ou rebaser la branche bump-version/${{ env.new_version }}
+      - name: Préparer la branche bump-version/${{ env.new_version }}
         run: |
           if git ls-remote --exit-code --heads origin bump-version/${{ env.new_version }}; then
-            echo "La branche existe déjà sur le remote, on la récupère et on la rebase sur dev."
-            git fetch origin bump-version/${{ env.new_version }}:bump-version/${{ env.new_version }}
-            git checkout bump-version/${{ env.new_version }}
-            git rebase origin/dev
-          else
-            echo "La branche n'existe pas, on la crée à partir de dev."
-            git checkout -b bump-version/${{ env.new_version }}
+            echo "Suppression de la branche distante existante."
+            git push origin --delete bump-version/${{ env.new_version }} || true
           fi
+          git checkout dev
+          git branch -D bump-version/${{ env.new_version }} || true
+          git checkout -b bump-version/${{ env.new_version }}
 
       - name: Bump version (patch) sur bump-version/${{ env.new_version }}
         run: |
