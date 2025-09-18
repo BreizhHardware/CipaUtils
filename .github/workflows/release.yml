@@ -101,4 +101,3 @@ jobs:
           base: dev
           title: "Bump version for next development cycle (dev)"
           body: "Automated version bump après release sur main."
-          push-to-fork: true
