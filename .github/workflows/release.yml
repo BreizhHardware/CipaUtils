@@ -97,6 +97,13 @@ jobs:
           sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
           sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
 
+      - name: Debug - Afficher git status et git diff
+        run: |
+          echo '--- git status ---'
+          git status
+          echo '--- git diff ---'
+          git diff
+
       - name: Commit version bump sur bump-version/${{ env.new_version }}
         run: |
           git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
