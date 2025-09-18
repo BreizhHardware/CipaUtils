@@ -1,5 +1,6 @@
 package bzh.breizhhardware.cipautils;
 
+import bzh.breizhhardware.cipautils.customRecipe.CustomRecipe;
 import bzh.breizhhardware.cipautils.grave.GraveListener;
 import bzh.breizhhardware.cipautils.waystone.Waystone;
 import bzh.breizhhardware.cipautils.waystone.WaystoneListener;
@@ -31,9 +32,11 @@ public class Main extends JavaPlugin {
         // Initialize the waystone system
         waystoneManager = new WaystoneManager(this);
         WaystoneRecipe waystoneRecipe = new WaystoneRecipe(this);
+        CustomRecipe customRecipe = new CustomRecipe(this);
 
         // Register recipes
         waystoneRecipe.registerRecipes();
+        customRecipe.registerRecipes();
 
         // Register listeners
         getServer().getPluginManager().registerEvents(new WaystoneListener(this, waystoneManager), this);
