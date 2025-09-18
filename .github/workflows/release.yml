@@ -55,8 +55,8 @@ jobs:
           git fetch origin dev:dev
           git checkout dev
 
-      - name: Bump version (patch) sur dev
-        id: bump_version_dev
+      - name: Calculer la nouvelle version
+        id: calc_new_version
         run: |
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+(\.[0-9]+)*$' | tail -1)
           CLEAN_VERSION=$(echo "$CURRENT_VERSION" | grep -Eo '^[0-9]+(\.[0-9]+){1,2}$')
@@ -66,16 +66,23 @@ jobs:
           else
             NEW_VERSION="$a.$b.$((c+1))"
           fi
-          mvn versions:set -DnewVersion=$NEW_VERSION
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Créer branche bump-version/${{ env.new_version }}
+      - name: Préparer ou rebaser la branche bump-version/${{ env.new_version }}
         run: |
-          if [ -z "${{ env.new_version }}" ]; then
-            echo "La variable new_version n'est pas définie."
-            exit 1
+          if git ls-remote --exit-code --heads origin bump-version/${{ env.new_version }}; then
+            echo "La branche existe déjà sur le remote, on la récupère et on la rebase sur dev."
+            git fetch origin bump-version/${{ env.new_version }}:bump-version/${{ env.new_version }}
+            git checkout bump-version/${{ env.new_version }}
+            git rebase origin/dev
+          else
+            echo "La branche n'existe pas, on la crée à partir de dev."
+            git checkout -b bump-version/${{ env.new_version }}
           fi
-          git checkout -b bump-version/${{ env.new_version }}
+
+      - name: Bump version (patch) sur bump-version/${{ env.new_version }}
+        run: |
+          mvn versions:set -DnewVersion=${{ env.new_version }}
 
       - name: Update plugin.yml and scripts sur bump-version/${{ env.new_version }}
         run: |
@@ -103,4 +110,3 @@ jobs:
           body: "Automated version bump après release sur main."
           labels: version-bump
           reviewers: BreizhHardware
-
