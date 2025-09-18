@@ -115,8 +115,12 @@ jobs:
           sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
           sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
 
-      - name: Debug - Afficher git status et git diff
+      - name: Debug - Afficher HEAD, branche courante, git status et git diff
         run: |
+          echo '--- HEAD ---'
+          git rev-parse HEAD
+          echo '--- Branche courante ---'
+          git rev-parse --abbrev-ref HEAD
           echo '--- git status ---'
           git status
           echo '--- git diff ---'
@@ -124,7 +128,10 @@ jobs:
 
       - name: Commit version bump sur bump-version/${{ env.new_version }}
         run: |
-          git add -u
+          echo '--- Branche courante avant commit ---'
+          git rev-parse --abbrev-ref HEAD
+          git add -A
+          git status
           git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
           git push --force-with-lease origin bump-version/${{ env.new_version }}
 
