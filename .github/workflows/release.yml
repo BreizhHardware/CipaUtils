@@ -101,7 +101,7 @@ jobs:
         run: |
           git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
           git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
-          git push origin bump-version/${{ env.new_version }}
+          git push --force-with-lease origin bump-version/${{ env.new_version }}
 
       - name: Create Pull Request vers dev
         uses: peter-evans/create-pull-request@v5
