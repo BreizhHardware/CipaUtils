@@ -68,6 +68,11 @@ jobs:
           fi
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
+      - name: Configurer l'identité Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Préparer ou rebaser la branche bump-version/${{ env.new_version }}
         run: |
           if git ls-remote --exit-code --heads origin bump-version/${{ env.new_version }}; then
@@ -94,8 +99,6 @@ jobs:
 
       - name: Commit version bump sur bump-version/${{ env.new_version }}
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
           git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
           git push origin bump-version/${{ env.new_version }}
