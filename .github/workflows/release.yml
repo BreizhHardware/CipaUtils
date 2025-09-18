@@ -26,6 +26,12 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
+      - name: Configurer l'identité Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+
       - name: Get current version
         id: get_version
         run: |
@@ -55,6 +61,12 @@ jobs:
           git fetch origin dev:dev
           git checkout dev
 
+      - name: Reset hard sur dev pour garantir un état propre
+        run: |
+          git fetch origin dev:dev
+          git checkout dev
+          git reset --hard origin/dev
+
       - name: Calculer la nouvelle version
         id: calc_new_version
         run: |
@@ -68,10 +80,10 @@ jobs:
           fi
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Configurer l'identité Git
+      - name: Afficher la version du pom.xml avant bump
         run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          echo 'Version AVANT bump dans pom.xml :'
+          grep '<version>' pom.xml | head -2
 
       - name: Préparer la branche bump-version/${{ env.new_version }}
         run: |
@@ -86,6 +98,14 @@ jobs:
       - name: Bump version (patch) sur bump-version/${{ env.new_version }}
         run: |
           mvn versions:set -DnewVersion=${{ env.new_version }}
+          rm -f pom.xml.versionsBackup
+
+      - name: Afficher la version du pom.xml après bump
+        run: |
+          echo 'Version APRÈS bump dans pom.xml :'
+          grep '<version>' pom.xml | head -2
+          echo 'Diff pom.xml :'
+          git diff pom.xml
 
       - name: Update plugin.yml and scripts sur bump-version/${{ env.new_version }}
         run: |
