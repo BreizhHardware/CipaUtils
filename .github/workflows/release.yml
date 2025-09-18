@@ -54,9 +54,9 @@ jobs:
         run: |
           git fetch origin dev:dev
           git checkout dev
-          git checkout -b bump-version/dev
+          git checkout -b bump-version/${{ env.new_version }}
 
-      - name: Bump version (patch) sur bump-version/dev
+      - name: Bump version (patch) sur bump-version/${{ env.new_version }}
         id: bump_version_dev
         run: |
           CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+(\.[0-9]+)*$' | tail -1)
@@ -70,7 +70,7 @@ jobs:
           mvn versions:set -DnewVersion=$NEW_VERSION
           echo "new_version=$NEW_VERSION" >> $GITHUB_ENV
 
-      - name: Update plugin.yml and scripts sur bump-version/dev
+      - name: Update plugin.yml and scripts sur bump-version/${{ env.new_version }}
         run: |
           sed -i "s/^version: .*/version: ${{ env.new_version }}/" src/main/resources/plugin.yml
           sed -i "s/^PLUGIN_VERSION=.*/PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.sh
@@ -78,19 +78,19 @@ jobs:
           sed -i "s/^set PLUGIN_VERSION=.*/set PLUGIN_VERSION=${{ env.new_version }}/" start-test-server.bat
           sed -i "s/^set PLUGIN_JAR=.*/set PLUGIN_JAR=CipaUtils-${{ env.new_version }}.jar/" start-test-server.bat
 
-      - name: Commit version bump sur bump-version/dev
+      - name: Commit version bump sur bump-version/${{ env.new_version }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add pom.xml src/main/resources/plugin.yml start-test-server.sh start-test-server.bat
           git commit -m "Bump version for next development cycle (dev)" || echo "No changes to commit"
-          git push origin bump-version/dev
+          git push origin bump-version/${{ env.new_version }}
 
       - name: Create Pull Request vers dev
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          branch: bump-version/dev
+          branch: bump-version/${{ env.new_version }}
           base: dev
           title: "Bump version for next development cycle (dev)"
           body: "Automated version bump après release sur main."
