@@ -1,6 +1,6 @@
 # plugin.yml
 name: CipaUtils
-version: 1.3
+version: 1.4
 main: bzh.breizhhardware.cipautils.Main
 api-version: 1.21
 commands:
