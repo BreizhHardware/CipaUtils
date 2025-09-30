@@ -1,8 +1,8 @@
 package bzh.breizhhardware.cipautils;
 
+import bzh.breizhhardware.cipautils.commands.NoMoreSpawnProtectCommand;
 import bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager;
 import bzh.breizhhardware.cipautils.recipeManager.RecipeManager;
-import bzh.breizhhardware.cipautils.commands.NoMoreSpawnProtectCommand;
 import bzh.breizhhardware.cipautils.commands.WaystoneCommand;
 import bzh.breizhhardware.cipautils.grave.GraveListener;
 import bzh.breizhhardware.cipautils.waystone.Waystone;
