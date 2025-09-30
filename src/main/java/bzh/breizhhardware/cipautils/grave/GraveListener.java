@@ -62,7 +62,7 @@ public class GraveListener implements Listener {
         if (!(state instanceof Barrel)) return;
 
         // Creation of a custom inventory for the grave (54 slots)
-        Inventory graveInventory = Bukkit.createInventory(null, 54, "Grave de " + player.getName());
+        Inventory graveInventory = Bukkit.createInventory(null, 54, "Grave of " + player.getName());
         graveInventories.put(barrelBlock.getLocation(), graveInventory);
 
         // Transfer items to the grave inventory
@@ -134,7 +134,7 @@ public class GraveListener implements Listener {
     public void onInventoryClose(InventoryCloseEvent event) {
         Inventory inv = event.getInventory();
         // Check if it's a grave inventory
-        if (inv.getSize() != 54 || !event.getView().getTitle().startsWith("Grave de ")) return;
+        if (inv.getSize() != 54 || !event.getView().getTitle().startsWith("Grave of ")) return;
         Location loc = null;
         for (Map.Entry<Location, Inventory> entry : graveInventories.entrySet()) {
             if (entry.getValue().equals(inv)) {
