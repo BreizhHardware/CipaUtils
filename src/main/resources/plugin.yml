@@ -5,7 +5,7 @@ main: bzh.breizhhardware.cipautils.Main
 api-version: 1.21
 commands:
   nomorespawnprotect:
-    description: Enable/disable spawn protection
+    description: Enables/disables spawn protection
     usage: /nomorespawnprotect - Toggle spawn protection
     aliases:
       - nsp
@@ -29,11 +29,6 @@ commands:
     usage: /chunkloader give
     aliases:
       - cl
-  cipautils:
-    description: Commands for CipaUtils
-    usage: /cipautils
-    aliases:
-      - cu
 permissions:
   nomorespawnprotect.admin:
     description: Allow to manage spawn protection
