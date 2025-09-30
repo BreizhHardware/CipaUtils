@@ -7,12 +7,23 @@ commands:
   nomorespawnprotect:
     description: Active ou désactive la protection du spawn
     usage: /nomorespawnprotect - Bascule la protection du spawn (active/désactive)
+    aliases:
+      - nsp
   waystone:
     description: Commandes pour les waystones
     usage: /waystone
+    aliases:
+      - ws
   toggledeathmsg:
     description: Active/désactive le message d'info sur la récupération automatique des tombes
     usage: /toggledeathmsg
+    aliases:
+      - tdm
+  chunkloader:
+    description: Donne un chunkloader ou affiche l'aide
+    usage: /chunkloader give
+    aliases:
+      - cl
 permissions:
   nomorespawnprotect.admin:
     description: Permet de contrôler les paramètres du plugin
