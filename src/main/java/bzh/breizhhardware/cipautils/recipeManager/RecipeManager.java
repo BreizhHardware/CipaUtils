@@ -1,4 +1,4 @@
-package bzh.breizhhardware.cipautils.customRecipe;
+package bzh.breizhhardware.cipautils.recipeManager;
 
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -30,6 +30,7 @@ public class RecipeManager {
     public void registerCustomRecipes() {
         registerLightBlockRecipe();
         registerWaystoneRecipe();
+        registerChunkLoaderRecipe();
     }
 
     public List<Recipe> getCustomRecipes() {
@@ -64,6 +65,23 @@ public class RecipeManager {
 
         registerRecipe(recipe);
         plugin.getLogger().info("Waystone recipe registered!");
+    }
+
+    private void registerChunkLoaderRecipe() {
+        bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager chunkLoaderManager =
+            new bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager(plugin);
+        ItemStack chunkLoader = chunkLoaderManager.getChunkLoaderItem();
+        NamespacedKey key = new NamespacedKey(plugin, "chunkloader");
+        ShapedRecipe recipe = new ShapedRecipe(key, chunkLoader);
+        recipe.shape(
+                "OIO",
+                "INI",
+                "OIO"
+        );
+        recipe.setIngredient('O', org.bukkit.Material.OBSIDIAN);
+        recipe.setIngredient('I', org.bukkit.Material.IRON_INGOT);
+        recipe.setIngredient('N', org.bukkit.Material.NETHER_STAR);
+        registerRecipe(recipe);
     }
 
     private ItemStack createWaystoneItem() {

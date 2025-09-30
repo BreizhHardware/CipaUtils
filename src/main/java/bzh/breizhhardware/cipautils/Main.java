@@ -1,6 +1,7 @@
 package bzh.breizhhardware.cipautils;
 
-import bzh.breizhhardware.cipautils.customRecipe.RecipeManager;
+import bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager;
+import bzh.breizhhardware.cipautils.recipeManager.RecipeManager;
 import bzh.breizhhardware.cipautils.grave.GraveListener;
 import bzh.breizhhardware.cipautils.waystone.Waystone;
 import bzh.breizhhardware.cipautils.waystone.WaystoneListener;
@@ -9,16 +10,18 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
-public class Main extends JavaPlugin {
+public class Main extends JavaPlugin implements Listener {
     private boolean spawnProtectionDisabled;
     private WaystoneManager waystoneManager;
     private GraveListener graveListener;
+    private ChunkLoaderManager chunkLoaderManager;
 
     @Override
     public void onEnable() {
@@ -31,6 +34,7 @@ public class Main extends JavaPlugin {
         // Initialize the waystone system
         waystoneManager = new WaystoneManager(this);
         RecipeManager recipeManager = new RecipeManager(this);
+        chunkLoaderManager = new ChunkLoaderManager(this);
 
         // Register recipes
         recipeManager.registerCustomRecipes();
@@ -40,11 +44,13 @@ public class Main extends JavaPlugin {
         // Register grave listener
         graveListener = new GraveListener(this);
         getServer().getPluginManager().registerEvents(graveListener, this);
+        getServer().getPluginManager().registerEvents(this, this);
 
         // Register commands
         getCommand("nomorespawnprotect").setExecutor(this);
         getCommand("waystone").setExecutor(this);
         getCommand("toggledeathmsg").setExecutor(graveListener.getToggleDeathMsgCommand());
+        getCommand("chunkloader").setExecutor(this);
 
         // Apply settings
         if (spawnProtectionDisabled) {
@@ -65,13 +71,28 @@ public class Main extends JavaPlugin {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("nomorespawnprotect")) {
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (command.getName().equalsIgnoreCase("nomorespawnprotect")) {
             return handleSpawnProtectCommand(sender, args);
         }
 
-        if (cmd.getName().equalsIgnoreCase("waystone")) {
+        if (command.getName().equalsIgnoreCase("waystone")) {
             return handleWaystoneCommand(sender, args);
+        }
+
+        if (command.getName().equalsIgnoreCase("chunkloader")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Commande réservée aux joueurs.");
+                return true;
+            }
+            Player player = (Player) sender;
+            if (args.length > 0 && args[0].equalsIgnoreCase("give")) {
+                player.getInventory().addItem(chunkLoaderManager.getChunkLoaderItem());
+                player.sendMessage(ChatColor.AQUA + "Vous avez reçu un chunkloader !");
+                return true;
+            }
+            player.sendMessage(ChatColor.YELLOW + "/chunkloader give");
+            return true;
         }
 
         return false;
