@@ -13,6 +13,11 @@ commands:
   toggledeathmsg:
     description: Active/désactive le message d'info sur la récupération automatique des tombes
     usage: /toggledeathmsg
+  cipautils:
+    description: Commands for CipaUtils
+    usage: /cipautils
+    aliases:
+      - cu
 permissions:
   nomorespawnprotect.admin:
     description: Permet de contrôler les paramètres du plugin
