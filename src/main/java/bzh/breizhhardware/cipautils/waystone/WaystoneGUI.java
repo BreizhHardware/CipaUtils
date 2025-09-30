@@ -22,48 +22,56 @@ public class WaystoneGUI {
         this.waystoneManager = waystoneManager;
     }
 
-    public void openWaystoneMenu(Player player, Waystone currentWaystone) {
+    public void openWaystoneMenu(Player player, Waystone currentWaystone, int page) {
         List<Waystone> availableWaystones = waystoneManager.getAvailableWaystones(player);
-        
-        // Remove the current waystone from the list
         availableWaystones.removeIf(w -> w.getId().equals(currentWaystone.getId()));
-        
         if (availableWaystones.isEmpty()) {
             player.sendMessage(ChatColor.YELLOW + "No other waystones available for teleportation.");
             return;
         }
-
-        // Calculate the required size (leave one row for controls)
-        int waystoneSlots = availableWaystones.size();
-        int lines = Math.max(2, (waystoneSlots + 8) / 9 + 1); // +1 row for controls
-        int size = Math.min(54, lines * 9);
-
-        Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Select a destination");
-        
-        // Add all available waystones (reserve only the last row)
-        int maxWaystoneSlots = size - 9; // Reserve the last row for controls
-        for (int i = 0; i < availableWaystones.size() && i < maxWaystoneSlots; i++) {
+        int waystonesPerPage = 45; // 5 lignes de 9, dernière ligne pour les contrôles
+        int totalPages = (int) Math.ceil((double) availableWaystones.size() / waystonesPerPage);
+        if (page < 0) page = 0;
+        if (page >= totalPages) page = totalPages - 1;
+        int size = 54;
+        Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Page " + (page+1) + "/" + totalPages);
+        int start = page * waystonesPerPage;
+        int end = Math.min(start + waystonesPerPage, availableWaystones.size());
+        for (int i = start; i < end; i++) {
             Waystone waystone = availableWaystones.get(i);
             ItemStack item = createWaystoneMenuItem(waystone, player);
-            gui.setItem(i, item);
+            gui.setItem(i - start, item);
         }
-
-        // Add decoration items
         addDecorationItems(gui, size);
-        
-        // Add an info item about the current waystone
         ItemStack currentInfo = createCurrentWaystoneInfo(currentWaystone);
         gui.setItem(size - 5, currentInfo);
-        
-        // Close item
+        // Boutons de navigation
+        if (page > 0) {
+            ItemStack prev = new ItemStack(Material.ARROW);
+            ItemMeta prevMeta = prev.getItemMeta();
+            prevMeta.setDisplayName(ChatColor.YELLOW + "Page précédente");
+            prev.setItemMeta(prevMeta);
+            gui.setItem(size - 9, prev);
+        }
+        if (page < totalPages - 1) {
+            ItemStack next = new ItemStack(Material.ARROW);
+            ItemMeta nextMeta = next.getItemMeta();
+            nextMeta.setDisplayName(ChatColor.YELLOW + "Page suivante");
+            next.setItemMeta(nextMeta);
+            gui.setItem(size - 8, next);
+        }
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
         closeMeta.setDisplayName(ChatColor.RED + "Close");
         closeItem.setItemMeta(closeMeta);
         gui.setItem(size - 1, closeItem);
-        
         player.openInventory(gui);
         player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 0.7f, 1.2f);
+    }
+
+    // Ancienne méthode conservée pour compatibilité
+    public void openWaystoneMenu(Player player, Waystone currentWaystone) {
+        openWaystoneMenu(player, currentWaystone, 0);
     }
 
     private ItemStack createWaystoneMenuItem(Waystone waystone, Player player) {

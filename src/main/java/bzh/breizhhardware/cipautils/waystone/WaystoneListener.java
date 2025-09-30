@@ -27,6 +27,7 @@ public class WaystoneListener implements Listener {
     private final WaystoneGUI waystoneGUI;
     private final Map<UUID, Long> lastInteraction = new HashMap<>();
     private final Map<UUID, Waystone> playerCurrentWaystone = new HashMap<>();
+    private final Map<UUID, Integer> currentPage = new HashMap<>();
     private static final long INTERACTION_COOLDOWN = 3000; // 3 seconds
 
     public WaystoneListener(Main plugin, WaystoneManager waystoneManager) {
@@ -53,11 +54,11 @@ public class WaystoneListener implements Listener {
             );
 
             if (success) {
-                player.sendMessage(ChatColor.GREEN + "Waystone '" + defaultName + "' created with success !");
+                player.sendMessage(ChatColor.GREEN + "Waystone '" + defaultName + "' created successfully!");
                 player.sendMessage(ChatColor.YELLOW + "Use /waystone rename <new_name> to rename");
                 player.playSound(player.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1.0f, 1.0f);
             } else {
-                player.sendMessage(ChatColor.RED + "Unable to create a waystone here !");
+                player.sendMessage(ChatColor.RED + "Unable to create a waystone here!");
                 event.setCancelled(true);
             }
         }
@@ -85,7 +86,7 @@ public class WaystoneListener implements Listener {
                     ItemStack waystoneItem = createWaystoneItem();
                     player.getInventory().addItem(waystoneItem);
                 } else {
-                    player.sendMessage(ChatColor.RED + "You cannot delete this waystone !");
+                    player.sendMessage(ChatColor.RED + "You cannot delete this waystone!");
                     event.setCancelled(true);
                 }
             }
@@ -115,8 +116,9 @@ public class WaystoneListener implements Listener {
                 // Store the player's current waystone
                 playerCurrentWaystone.put(playerId, waystone);
 
-                // Open the GUI
-                waystoneGUI.openWaystoneMenu(player, waystone);
+                // Open page 0 by default
+                currentPage.put(playerId, 0);
+                waystoneGUI.openWaystoneMenu(player, waystone, 0);
                 event.setCancelled(true);
             }
         }
@@ -129,42 +131,59 @@ public class WaystoneListener implements Listener {
         Player player = (Player) event.getWhoClicked();
         String title = event.getView().getTitle();
 
-        if (!title.equals(ChatColor.DARK_PURPLE + "Waystones - Select a destination")) return;
+        if (!title.startsWith(ChatColor.DARK_PURPLE + "Waystones - Page ")) return;
 
         event.setCancelled(true);
 
         ItemStack clickedItem = event.getCurrentItem();
         if (clickedItem == null) return;
 
-        // Handle closing
+        UUID playerId = player.getUniqueId();
+        Waystone currentWaystone = playerCurrentWaystone.get(playerId);
+        int page = currentPage.getOrDefault(playerId, 0);
+
+        // Close
         if (clickedItem.getType() == Material.BARRIER) {
             player.closeInventory();
+            currentPage.remove(playerId);
             return;
         }
 
-        // Handle teleportation
+        // Previous page
+        if (clickedItem.getType() == Material.ARROW && clickedItem.getItemMeta() != null &&
+            ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).equals("Page précédente")) {
+            if (page > 0) {
+                page--;
+                currentPage.put(playerId, page);
+                waystoneGUI.openWaystoneMenu(player, currentWaystone, page);
+            }
+            return;
+        }
+
+        // Next page
+        if (clickedItem.getType() == Material.ARROW && clickedItem.getItemMeta() != null &&
+            ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).equals("Page suivante")) {
+            page++;
+            currentPage.put(playerId, page);
+            waystoneGUI.openWaystoneMenu(player, currentWaystone, page);
+            return;
+        }
+
+        // Teleportation
         if (clickedItem.getType() == Material.ENDER_PEARL) {
 
             Waystone targetWaystone = waystoneGUI.getWaystoneFromMenuItem(clickedItem);
 
             if (targetWaystone != null) {
-                Waystone currentWaystone = playerCurrentWaystone.get(player.getUniqueId());
-
-                if (currentWaystone == null) {
-                    player.sendMessage(ChatColor.RED + "Error: Waystone information lost !");
-                    player.closeInventory();
-                    return;
-                }
-
                 // Check if the player can access this waystone
                 if (!targetWaystone.isPublic() && !targetWaystone.getOwner().equals(player.getUniqueId().toString())) {
-                    player.sendMessage(ChatColor.RED + "You cannot access this waystone !");
+                    player.sendMessage(ChatColor.RED + "You cannot access this waystone!");
                     return;
                 }
 
                 // Check dimension
                 if (!currentWaystone.getLocation().getWorld().getName().equals(targetWaystone.getLocation().getWorld().getName())) {
-                    player.sendMessage(ChatColor.RED + "Impossible to teleport between different dimensions !");
+                    player.sendMessage(ChatColor.RED + "Impossible to teleport between different dimensions!");
                     player.closeInventory();
                     return;
                 }
@@ -176,16 +195,16 @@ public class WaystoneListener implements Listener {
                 boolean teleported = player.teleport(teleportLocation);
 
                 if (teleported) {
-                    player.sendMessage(ChatColor.GREEN + "Teleported to '" + targetWaystone.getName() + "' !");
+                    player.sendMessage(ChatColor.GREEN + "Teleported to '" + targetWaystone.getName() + "'!");
                     player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1.0f, 1.0f);
                 } else {
-                    player.sendMessage(ChatColor.RED + "Error during teleportation !");
+                    player.sendMessage(ChatColor.RED + "Error during teleportation!");
                 }
 
                 // Clean up the stored current waystone
                 playerCurrentWaystone.remove(player.getUniqueId());
             } else {
-                player.sendMessage(ChatColor.RED + "Error: Impossible to get the information from the waystone !");
+                player.sendMessage(ChatColor.RED + "Error: Impossible to get the information from the waystone!");
                 plugin.getLogger().warning("Impossible to get the waystone from the item menu");
             }
         }
@@ -208,9 +227,9 @@ public class WaystoneListener implements Listener {
 
         meta.setDisplayName(ChatColor.AQUA + "Empty Waystone");
         meta.setLore(Arrays.asList(
-            ChatColor.GRAY + "Place this bloc to create",
-            ChatColor.GRAY + "a point of teleportation.",
-            ChatColor.GOLD + "Craft: Ender Pearl + Diamants + Lodestone + Obsidian",
+            ChatColor.GRAY + "Place this block to create",
+            ChatColor.GRAY + "a teleportation point.",
+            ChatColor.GOLD + "Craft: Ender Pearl + Diamonds + Lodestone + Obsidian",
             ChatColor.BLUE + "Right-click a placed waystone to use it"
         ));
 
