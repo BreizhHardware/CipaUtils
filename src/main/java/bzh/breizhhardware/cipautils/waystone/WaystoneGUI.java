@@ -29,7 +29,7 @@ public class WaystoneGUI {
         availableWaystones.removeIf(w -> w.getId().equals(currentWaystone.getId()));
         
         if (availableWaystones.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "Aucune autre waystone disponible pour la téléportation !");
+            player.sendMessage(ChatColor.YELLOW + "No other waystones available for teleportation.");
             return;
         }
 
@@ -38,7 +38,7 @@ public class WaystoneGUI {
         int lines = Math.max(2, (waystoneSlots + 8) / 9 + 1); // +1 row for controls
         int size = Math.min(54, lines * 9);
 
-        Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Téléportation");
+        Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Select a destination");
         
         // Add all available waystones (reserve only the last row)
         int maxWaystoneSlots = size - 9; // Reserve the last row for controls
@@ -58,7 +58,7 @@ public class WaystoneGUI {
         // Close item
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "Fermer");
+        closeMeta.setDisplayName(ChatColor.RED + "Close");
         closeItem.setItemMeta(closeMeta);
         gui.setItem(size - 1, closeItem);
         
@@ -67,26 +67,27 @@ public class WaystoneGUI {
     }
 
     private ItemStack createWaystoneMenuItem(Waystone waystone, Player player) {
-        ItemStack item = new ItemStack(Material.ENDER_PEARL);
+        ItemStack item;
+        if (waystone.getCustomItem() != null && !waystone.getCustomItem().getType().isAir()) {
+            item = waystone.getCustomItem().clone();
+        } else {
+            item = new ItemStack(Material.ENDER_PEARL);
+        }
         ItemMeta meta = item.getItemMeta();
-        
         meta.setDisplayName(ChatColor.AQUA + waystone.getName());
-        
         String ownerName = getPlayerName(waystone.getOwner());
         String locationStr = String.format("(%d, %d, %d)", 
             waystone.getLocation().getBlockX(),
             waystone.getLocation().getBlockY(),
             waystone.getLocation().getBlockZ());
-        
         meta.setLore(Arrays.asList(
-            ChatColor.GRAY + "Propriétaire: " + ChatColor.WHITE + ownerName,
+            ChatColor.GRAY + "Owner: " + ChatColor.WHITE + ownerName,
             ChatColor.GRAY + "Position: " + ChatColor.WHITE + locationStr,
-            ChatColor.GRAY + "Monde: " + ChatColor.WHITE + waystone.getLocation().getWorld().getName(),
+            ChatColor.GRAY + "World: " + ChatColor.WHITE + waystone.getLocation().getWorld().getName(),
             "",
-            ChatColor.GREEN + "Cliquez pour vous téléporter !",
+            ChatColor.GREEN + "Click to teleport !",
             ChatColor.GOLD + "ID: " + waystone.getId()
         ));
-        
         item.setItemMeta(meta);
         return item;
     }
@@ -95,12 +96,12 @@ public class WaystoneGUI {
         ItemStack item = new ItemStack(Material.LODESTONE);
         ItemMeta meta = item.getItemMeta();
         
-        meta.setDisplayName(ChatColor.GOLD + "Waystone Actuelle");
+        meta.setDisplayName(ChatColor.GOLD + "Current Waystone");
         
         String ownerName = getPlayerName(waystone.getOwner());
         meta.setLore(Arrays.asList(
-            ChatColor.GRAY + "Nom: " + ChatColor.WHITE + waystone.getName(),
-            ChatColor.GRAY + "Propriétaire: " + ChatColor.WHITE + ownerName,
+            ChatColor.GRAY + "Name: " + ChatColor.WHITE + waystone.getName(),
+            ChatColor.GRAY + "Owner: " + ChatColor.WHITE + ownerName,
             ChatColor.GRAY + "Position: " + ChatColor.WHITE + 
                 waystone.getLocation().getBlockX() + ", " +
                 waystone.getLocation().getBlockY() + ", " +
@@ -132,7 +133,7 @@ public class WaystoneGUI {
             
             return plugin.getServer().getOfflinePlayer(java.util.UUID.fromString(uuid)).getName();
         } catch (Exception e) {
-            return "Inconnu";
+            return "Unknown";
         }
     }
 

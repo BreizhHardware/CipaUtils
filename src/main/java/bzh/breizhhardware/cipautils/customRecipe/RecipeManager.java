@@ -1,6 +1,7 @@
 package bzh.breizhhardware.cipautils.customRecipe;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.inventory.Recipe;
@@ -8,6 +9,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class RecipeManager {
@@ -70,12 +72,12 @@ public class RecipeManager {
         ItemStack item = new ItemStack(org.bukkit.Material.LODESTONE);
         org.bukkit.inventory.meta.ItemMeta meta = item.getItemMeta();
 
-        meta.setDisplayName(org.bukkit.ChatColor.AQUA + "Waystone Vierge");
+        meta.setDisplayName(ChatColor.AQUA + "Empty Waystone");
         java.util.List<String> lore = java.util.Arrays.asList(
-            org.bukkit.ChatColor.GRAY + "Placez ce bloc pour créer",
-            org.bukkit.ChatColor.GRAY + "un point de téléportation",
-            org.bukkit.ChatColor.GOLD + "Craft: Ender Pearl + Diamants + Lodestone + Obsidienne",
-            org.bukkit.ChatColor.BLUE + "Clic droit après placement pour nommer"
+                ChatColor.GRAY + "Place this bloc to create",
+                ChatColor.GRAY + "a point of teleportation.",
+                ChatColor.GOLD + "Craft: Ender Pearl + Diamants + Lodestone + Obsidian",
+                ChatColor.BLUE + "Right-click a placed waystone to use it"
         );
         meta.setLore(lore);
         item.setItemMeta(meta);
