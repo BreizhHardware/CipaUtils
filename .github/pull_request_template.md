@@ -1,9 +1,3 @@
-
----
-name: Pull Request
-about: Default template for Pull Requests
----
-
 ## Description
 
 Please briefly describe the changes introduced by this Pull Request.
@@ -13,6 +7,7 @@ Please briefly describe the changes introduced by this Pull Request.
 - [ ] I have bumped the version in all required files (`pom.xml`, `plugin.yml`, `start-test-server.bat`, `start-test-server.sh`) (mandatory for a PR from `dev` to `main`)
 - [ ] I have tested the changes locally
 - [ ] I have updated the documentation if needed
+- [ ] I have set the destination branch to `dev` (unless it's a hotfix to `main`)
 
 ## Type of change
 
