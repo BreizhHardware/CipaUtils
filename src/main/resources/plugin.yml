@@ -29,6 +29,11 @@ commands:
     usage: /chunkloader give
     aliases:
       - cl
+  cipautils:
+    description: Commands for CipaUtils
+    usage: /cipautils
+    aliases:
+      - cu
 permissions:
   nomorespawnprotect.admin:
     description: Allow to manage spawn protection
