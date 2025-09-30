@@ -13,6 +13,9 @@ commands:
   toggledeathmsg:
     description: Active/désactive le message d'info sur la récupération automatique des tombes
     usage: /toggledeathmsg
+  advancements:
+    description: displays player's advancements completion
+    usage: /advancements
 permissions:
   nomorespawnprotect.admin:
     description: Permet de contrôler les paramètres du plugin
@@ -26,3 +29,6 @@ permissions:
   cipautils.waystone.admin:
     description: Permet de détruire toutes les waystones
     default: op
+  cipautils.advancements:
+    description: Allows for the players to see their advancements progress
+    default: true

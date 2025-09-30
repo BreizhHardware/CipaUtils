@@ -1,5 +1,6 @@
 package bzh.breizhhardware.cipautils;
 
+import bzh.breizhhardware.cipautils.advancements.AdvancementsListener;
 import bzh.breizhhardware.cipautils.customRecipe.RecipeManager;
 import bzh.breizhhardware.cipautils.grave.GraveListener;
 import bzh.breizhhardware.cipautils.waystone.Waystone;
@@ -19,6 +20,7 @@ public class Main extends JavaPlugin {
     private boolean spawnProtectionDisabled;
     private WaystoneManager waystoneManager;
     private GraveListener graveListener;
+    private AdvancementsListener advancementsListener;
 
     @Override
     public void onEnable() {
@@ -41,10 +43,15 @@ public class Main extends JavaPlugin {
         graveListener = new GraveListener(this);
         getServer().getPluginManager().registerEvents(graveListener, this);
 
+        // Register advancement chat listener
+        advancementsListener = new AdvancementsListener();
+        getServer().getPluginManager().registerEvents(advancementsListener, this);
+
         // Register commands
         getCommand("nomorespawnprotect").setExecutor(this);
         getCommand("waystone").setExecutor(this);
         getCommand("toggledeathmsg").setExecutor(graveListener.getToggleDeathMsgCommand());
+        getCommand("advancements").setExecutor(advancementsListener);
 
         // Apply settings
         if (spawnProtectionDisabled) {
@@ -53,6 +60,9 @@ public class Main extends JavaPlugin {
 
         getLogger().info("NoMoreSpawnProtect is enabled!");
         getLogger().info("Waystone system initialized with crafting recipes!");
+
+
+
     }
 
     @Override
