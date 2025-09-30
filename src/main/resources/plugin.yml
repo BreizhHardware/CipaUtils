@@ -24,6 +24,11 @@ commands:
     usage: /chunkloader give
     aliases:
       - cl
+  cipautils:
+    description: Commands for CipaUtils
+    usage: /cipautils
+    aliases:
+      - cu
 permissions:
   nomorespawnprotect.admin:
     description: Permet de contrôler les paramètres du plugin
