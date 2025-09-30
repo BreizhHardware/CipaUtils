@@ -125,7 +125,7 @@ public class Main extends JavaPlugin implements Listener {
             return true;
         }
 
-        if (cmd.getName().equalsIgnoreCase("cipautils")) {
+        if (command.getName().equalsIgnoreCase("cipautils")) {
             // if arg is bug send bug report link
             if (args.length > 0 && args[0].equalsIgnoreCase("bug")) {
                 sender.sendMessage("§eTo report a bug, please visit: §9https://github.com/BreizhHardware/CipaUtils/issues/new");
@@ -134,6 +134,21 @@ public class Main extends JavaPlugin implements Listener {
             // if no args is provided send all available commands
             sender.sendMessage("§e--- CipaUtils Commands ---");
             sender.sendMessage("§f/cipautils bug §7- Report a bug");
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("chunkloader")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Commande réservée aux joueurs.");
+                return true;
+            }
+            Player player = (Player) sender;
+            if (args.length > 0 && args[0].equalsIgnoreCase("give")) {
+                player.getInventory().addItem(chunkLoaderManager.getChunkLoaderItem());
+                player.sendMessage(ChatColor.AQUA + "Vous avez reçu un chunkloader !");
+                return true;
+            }
+            player.sendMessage(ChatColor.YELLOW + "/chunkloader give");
             return true;
         }
 

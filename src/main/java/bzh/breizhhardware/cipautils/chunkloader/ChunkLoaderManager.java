@@ -145,7 +145,7 @@ public class ChunkLoaderManager implements Listener {
         String uuidStr = block.getMetadata("chunkloader").get(0).asString();
         UUID uuid = UUID.fromString(uuidStr);
         if (!event.getPlayer().getUniqueId().equals(uuid)) {
-            event.getPlayer().sendMessage("§cThis chunkloader isn't yours.");
+            event.getPlayer().sendMessage("§cThis chunkloader isn't yourse.");
             return;
         }
         Location loc = block.getLocation();
