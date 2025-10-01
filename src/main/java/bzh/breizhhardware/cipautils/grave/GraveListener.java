@@ -34,11 +34,101 @@ public class GraveListener implements Listener {
     private final Map<Location, UUID> graves = new HashMap<>();
     // Map to store the inventories of each grave
     private final Map<Location, Inventory> graveInventories = new HashMap<>();
+    // Map to store grave metadata (creation time, expiry, owner)
+    private final Map<Location, GraveData> graveDataMap = new HashMap<>();
     // Set to store players who have disabled death messages
     private final Set<UUID> deathMsgDisabled = new HashSet<>();
 
+    // Store all the data from a grave
+    private static class GraveData {
+        private final long creationTimeMillis;
+        private final long expiryMillis;
+        private final UUID owner;
+        public GraveData(long creationTimeMillis, long expiryMillis, UUID owner) {
+            this.creationTimeMillis = creationTimeMillis;
+            this.expiryMillis = expiryMillis;
+            this.owner = owner;
+        }
+        public boolean isExpired() {
+            return System.currentTimeMillis() > (creationTimeMillis + expiryMillis);
+        }
+        public long getRemainingMillis() {
+            return (creationTimeMillis + expiryMillis) - System.currentTimeMillis();
+        }
+        public UUID getOwner() { return owner; }
+    }
+
+    private final long minMillis;
+    private final long maxMillis;
+
     public GraveListener(JavaPlugin plugin) {
         this.plugin = plugin;
+        // Load configuration
+        plugin.saveDefaultConfig();
+        long minMinutes = plugin.getConfig().getLong("grave-min-expiry-minutes", 1440);
+        long maxMinutes = plugin.getConfig().getLong("grave-max-expiry-minutes", 2880);
+        this.minMillis = minMinutes * 60 * 1000L;
+        this.maxMillis = maxMinutes * 60 * 1000L;
+        // Schedule periodic tasks to clean up expired graves and update holograms
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                Set<Location> toRemove = new HashSet<>();
+                for (Map.Entry<Location, GraveData> entry : graveDataMap.entrySet()) {
+                    if (entry.getValue().isExpired()) {
+                        Location loc = entry.getKey();
+                        toRemove.add(loc);
+                        // Remove the barrel block
+                        loc.getBlock().setType(Material.AIR);
+                        // Remove the inventory
+                        graveInventories.remove(loc);
+                        // Remove the hologram
+                        UUID holoId = graves.get(loc);
+                        graves.remove(loc);
+                        if (holoId != null && Bukkit.getEntity(holoId) != null) {
+                            Bukkit.getEntity(holoId).remove();
+                        }
+                    }
+                }
+                for (Location loc : toRemove) {
+                    graveDataMap.remove(loc);
+                }
+            }
+        }.runTaskTimer(plugin, 20 * 10, 20 * 10);
+        // Task to update hologram timers every second
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for (Map.Entry<Location, UUID> entry : graves.entrySet()) {
+                    GraveData data = graveDataMap.get(entry.getKey());
+                    if (data == null) continue;
+                    long millisLeft = data.getRemainingMillis();
+                    if (millisLeft < 0) millisLeft = 0;
+                    long sec = millisLeft / 1000;
+                    long min = sec / 60;
+                    long s = sec % 60;
+                    String timer = String.format("%02d:%02d", min, s);
+                    ArmorStand as = (ArmorStand) Bukkit.getEntity(entry.getValue());
+                    if (as != null) {
+                        as.setCustomName("Expire in: " + timer);
+                    }
+                }
+            }
+        }.runTaskTimer(plugin, 20, 20); // toutes les secondes
+    }
+
+    @EventHandler
+    public void onPlayerJoin(org.bukkit.event.player.PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        int count = 0;
+        for (GraveData data : graveDataMap.values()) {
+            if (data.getOwner().equals(player.getUniqueId()) && !data.isExpired()) {
+                count++;
+            }
+        }
+        if (count > 0) {
+            player.sendMessage("§eYou have " + count + " active grave(s). Remember to recover your items before they expire!");
+        }
     }
 
     @EventHandler
@@ -56,10 +146,26 @@ public class GraveListener implements Listener {
         if (barrelBlock == null) {
             barrelBlock = deathLoc.getBlock();
         }
-
         barrelBlock.setType(Material.BARREL);
         BlockState state = barrelBlock.getState();
         if (!(state instanceof Barrel)) return;
+
+        // Calculate expiry time based on player deaths
+        int playerDeaths = player.getStatistic(org.bukkit.Statistic.DEATHS);
+        int minDeaths = playerDeaths;
+        int maxDeaths = playerDeaths;
+        for (org.bukkit.OfflinePlayer p : Bukkit.getOfflinePlayers()) {
+            int deaths = p.getStatistic(org.bukkit.Statistic.DEATHS);
+            if (deaths < minDeaths) minDeaths = deaths;
+            if (deaths > maxDeaths) maxDeaths = deaths;
+        }
+        long expiryTime;
+        if (maxDeaths == minDeaths) {
+            expiryTime = minMillis;
+        } else {
+            double ratio = (double)(playerDeaths - minDeaths) / (double)(maxDeaths - minDeaths);
+            expiryTime = minMillis + (long)((maxMillis - minMillis) * ratio);
+        }
 
         // Creation of a custom inventory for the grave (54 slots)
         Inventory graveInventory = Bukkit.createInventory(null, 54, "Grave of " + player.getName());
@@ -73,7 +179,7 @@ public class GraveListener implements Listener {
 
         // Creation of the hologram above the grave
         String timeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-        String customName = player.getName() + " - " + timeStr;
+        String customName = "Expire in: " + String.format("%02d:%02d", expiryTime/60000, (expiryTime/1000)%60);
         Location hologramLoc = barrelBlock.getLocation().add(0.5, 1.2, 0.5);
         ArmorStand as = (ArmorStand) barrelBlock.getWorld().spawn(hologramLoc, ArmorStand.class);
         as.setVisible(false);
@@ -83,6 +189,9 @@ public class GraveListener implements Listener {
         as.setCustomName(customName);
         as.setSmall(true);
         graves.put(barrelBlock.getLocation(), as.getUniqueId());
+
+        // Store grave metadata
+        graveDataMap.put(barrelBlock.getLocation(), new GraveData(System.currentTimeMillis(), expiryTime, player.getUniqueId()));
     }
 
     @EventHandler
