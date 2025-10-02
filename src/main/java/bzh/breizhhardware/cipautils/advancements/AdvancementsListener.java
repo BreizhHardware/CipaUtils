@@ -1,4 +1,3 @@
-
 package bzh.breizhhardware.cipautils.advancements;
 
 import io.papermc.paper.advancement.AdvancementDisplay;
@@ -13,10 +12,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
-import java.util.Iterator;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class AdvancementsListener implements Listener, CommandExecutor {
-    private static final String TRIGGER_MESSAGE = "/advancements"; // Change this to your desired trigger
+    private static final String TRIGGER_MESSAGE = "/advancements";
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -26,9 +26,15 @@ public class AdvancementsListener implements Listener, CommandExecutor {
         }
 
         Player player = (Player) sender;
-        PlayerAdvancements playerAdvancements = gatherAdvancementProgress(player);
 
-        // Send the results to the player
+        // Check for subcommands
+        if (args.length > 0 && args[0].equalsIgnoreCase("leaderboard")) {
+            displayLeaderboard(player);
+            return true;
+        }
+
+        // Default behavior: show player's own stats
+        PlayerAdvancements playerAdvancements = gatherAdvancementProgress(player);
         displayAdvancementStats(player, playerAdvancements);
         return true;
     }
@@ -39,14 +45,66 @@ public class AdvancementsListener implements Listener, CommandExecutor {
         String message = event.getMessage();
 
         if (message.equalsIgnoreCase(TRIGGER_MESSAGE)) {
-            // Message doesn't appear in chat
             event.setCancelled(true);
-
             PlayerAdvancements playerAdvancements = gatherAdvancementProgress(player);
-
-            // Send the results to the player
             displayAdvancementStats(player, playerAdvancements);
         }
+    }
+
+    private void displayLeaderboard(Player requester) {
+        Map<String, PlayerAdvancements> leaderboardData = new HashMap<>();
+
+        // Gather advancement data for all online players
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerAdvancements advancements = gatherAdvancementProgress(player);
+            leaderboardData.put(player.getName(), advancements);
+        }
+
+        // Sort players by completed advancements (descending)
+        List<Map.Entry<String, PlayerAdvancements>> sortedEntries = leaderboardData.entrySet()
+                .stream()
+                .sorted((e1, e2) -> Integer.compare(
+                        e2.getValue().getCompletedAdvancements(),
+                        e1.getValue().getCompletedAdvancements()))
+                .collect(Collectors.toList());
+
+        // Display leaderboard
+        requester.sendMessage("§6§l=== Advancements Leaderboard (Top 10) ===");
+        requester.sendMessage("");
+
+        int position = 1;
+        int limit = Math.min(10, sortedEntries.size());
+
+        for (int i = 0; i < limit; i++) {
+            Map.Entry<String, PlayerAdvancements> entry = sortedEntries.get(i);
+            String playerName = entry.getKey();
+            PlayerAdvancements advancements = entry.getValue();
+
+            double percentage = (advancements.getCompletedAdvancements() * 100.0) /
+                    Math.max(1, advancements.getTotalAdvancements());
+
+            // Highlight the requester's position
+            String color = playerName.equals(requester.getName()) ? "§e§l" : "§7";
+            String medal = "";
+
+            // Add medals for top 3
+            switch (position) {
+                case 1: medal = "§6🥇 "; break;
+                case 2: medal = "§f🥈 "; break;
+                case 3: medal = "§c🥉 "; break;
+                default: medal = "§7" + position + ". "; break;
+            }
+
+            requester.sendMessage(medal + color + playerName + " §8- §f" +
+                    advancements.getCompletedAdvancements() + "§7/§f" +
+                    advancements.getTotalAdvancements() + " §7(" +
+                    String.format("%.1f%%", percentage) + "§7)");
+
+            position++;
+        }
+
+        requester.sendMessage("");
+        requester.sendMessage("§7Use §e/advancements §7to see your detailed stats");
     }
 
     private void displayAdvancementStats(Player player, PlayerAdvancements playerAdvancements) {
@@ -79,19 +137,16 @@ public class AdvancementsListener implements Listener, CommandExecutor {
         int totalChallenges = 0;
         int completedChallenges = 0;
 
-        // Iterate through all registered advancements
         Iterator<Advancement> advancementIterator = Bukkit.advancementIterator();
 
         while (advancementIterator.hasNext()) {
             Advancement advancement = advancementIterator.next();
             AdvancementProgress progress = player.getAdvancementProgress(advancement);
 
-            // Count total advancements (excluding recipe advancements)
             String key = advancement.getKey().toString();
             if (!key.contains("recipes/")) {
                 AdvancementDisplay display = advancement.getDisplay();
 
-                // Only count advancements that have a display (shown in UI)
                 if (display != null) {
                     totalAdvancements++;
 
@@ -100,10 +155,8 @@ public class AdvancementsListener implements Listener, CommandExecutor {
                         completedAdvancements++;
                     }
 
-                    // Get the advancement frame type
                     AdvancementDisplay.Frame frame = display.frame();
 
-                    // Count by type
                     switch (frame) {
                         case TASK:
                             totalTasks++;
@@ -140,7 +193,6 @@ public class AdvancementsListener implements Listener, CommandExecutor {
     }
 
     private String getTabKey(String advancementKey) {
-        // Extract tab name from advancement key (e.g., "minecraft:story/root" -> "story")
         if (advancementKey.contains("/")) {
             String[] parts = advancementKey.split("/");
             if (parts.length >= 2 && parts[parts.length - 1].equals("root")) {
