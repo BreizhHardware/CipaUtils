@@ -69,7 +69,7 @@ public class WaystoneGUI {
         player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 0.7f, 1.2f);
     }
 
-    // Ancienne méthode conservée pour compatibilité
+    // Legacy method kept for compatibility
     public void openWaystoneMenu(Player player, Waystone currentWaystone) {
         openWaystoneMenu(player, currentWaystone, 0);
     }
