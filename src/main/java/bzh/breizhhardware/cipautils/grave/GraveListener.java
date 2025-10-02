@@ -187,6 +187,22 @@ public class GraveListener implements Listener {
         event.blockList().removeIf(block -> graveInventories.containsKey(block.getLocation()));
     }
 
+    @EventHandler
+    public void onBlockBurn(org.bukkit.event.block.BlockBurnEvent event) {
+        Block block = event.getBlock();
+        if (block.getType() == Material.BARREL && graveInventories.containsKey(block.getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onBlockFromTo(org.bukkit.event.block.BlockFromToEvent event) {
+        Block toBlock = event.getToBlock();
+        if (toBlock.getType() == Material.BARREL && graveInventories.containsKey(toBlock.getLocation())) {
+            event.setCancelled(true);
+        }
+    }
+
     private Block findBarrelLocation(Location loc) {
         // Search for a suitable location for the barrel within 3 blocks above the death location
         for (int y = 0; y <= 3; y++) {
