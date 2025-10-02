@@ -26,7 +26,7 @@ jar {
     archiveBaseName.set('CipaUtils')
     manifest {
         attributes(
-            'Main-Class': 'bzh.breizhhardware.Main' // À adapter selon votre classe principale
+            'Main-Class': 'bzh.breizhhardware.Main'
         )
     }
     from {
