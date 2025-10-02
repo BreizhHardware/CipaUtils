@@ -46,3 +46,9 @@ test-server/*
 .idea/*
 
 pom.xml.versionsBackup
+
+.gradle
+.gradle/
+.gradle/*
+gradle/
+gradle/*
