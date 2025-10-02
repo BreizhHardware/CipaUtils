@@ -50,5 +50,3 @@ pom.xml.versionsBackup
 .gradle
 .gradle/
 .gradle/*
-gradle/
-gradle/*
