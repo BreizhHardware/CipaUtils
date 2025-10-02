@@ -49,14 +49,14 @@ public class WaystoneGUI {
         if (page > 0) {
             ItemStack prev = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prev.getItemMeta();
-            prevMeta.setDisplayName(ChatColor.YELLOW + "Page précédente");
+            prevMeta.setDisplayName(ChatColor.YELLOW + "Previous page");
             prev.setItemMeta(prevMeta);
             gui.setItem(size - 9, prev);
         }
         if (page < totalPages - 1) {
             ItemStack next = new ItemStack(Material.ARROW);
             ItemMeta nextMeta = next.getItemMeta();
-            nextMeta.setDisplayName(ChatColor.YELLOW + "Page suivante");
+            nextMeta.setDisplayName(ChatColor.YELLOW + "Next page");
             next.setItemMeta(nextMeta);
             gui.setItem(size - 8, next);
         }

@@ -92,7 +92,7 @@ public class RecipeManager {
 
         meta.setDisplayName(ChatColor.AQUA + "Empty Waystone");
         java.util.List<String> lore = java.util.Arrays.asList(
-                ChatColor.GRAY + "Place this bloc to create",
+                ChatColor.GRAY + "Place this block to create",
                 ChatColor.GRAY + "a point of teleportation.",
                 ChatColor.GOLD + "Craft: Ender Pearl + Diamants + Lodestone + Obsidian",
                 ChatColor.BLUE + "Right-click a placed waystone to use it"
