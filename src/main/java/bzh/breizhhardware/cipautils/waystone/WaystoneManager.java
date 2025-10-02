@@ -6,6 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,12 +48,17 @@ public class WaystoneManager {
             waystoneConfig.set(key + ".yaw", waystone.getLocation().getYaw());
             waystoneConfig.set(key + ".pitch", waystone.getLocation().getPitch());
             waystoneConfig.set(key + ".public", waystone.isPublic());
+            if (waystone.getCustomItem() != null && !waystone.getCustomItem().getType().isAir()) {
+                waystoneConfig.set(key + ".customItem", waystone.getCustomItem());
+            } else {
+                waystoneConfig.set(key + ".customItem", null);
+            }
         }
 
         try {
             waystoneConfig.save(waystoneFile);
         } catch (IOException e) {
-            plugin.getLogger().severe("Impossible de sauvegarder les waystones : " + e.getMessage());
+            plugin.getLogger().severe("Unable to save the waystones : " + e.getMessage());
         }
     }
 
@@ -76,14 +82,23 @@ public class WaystoneManager {
 
                 Location location = new Location(plugin.getServer().getWorld(worldName), x, y, z, yaw, pitch);
                 Waystone waystone = new Waystone(key, name, owner, location, isPublic);
-
+                if (waystoneConfig.contains("waystones." + key + ".customItem")) {
+                    Object itemObj = waystoneConfig.get("waystones." + key + ".customItem");
+                    if (itemObj instanceof ItemStack) {
+                        waystone.setCustomItem((ItemStack) itemObj);
+                    } else if (itemObj instanceof Map) {
+                        // Support legacy or direct Map serialization
+                        ItemStack item = ItemStack.deserialize((Map<String, Object>) itemObj);
+                        waystone.setCustomItem(item);
+                    }
+                }
                 waystones.put(key, waystone);
             } catch (Exception e) {
-                plugin.getLogger().warning("Erreur lors du chargement de la waystone " + key + " : " + e.getMessage());
+                plugin.getLogger().warning("Error while loading the waystones " + key + " : " + e.getMessage());
             }
         }
 
-        plugin.getLogger().info("Chargé " + waystones.size() + " waystones");
+        plugin.getLogger().info("Load " + waystones.size() + " waystones");
     }
 
     public boolean createWaystone(Location location, String name, String owner) {
