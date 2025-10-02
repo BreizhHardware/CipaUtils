@@ -43,6 +43,9 @@ jobs:
           git tag -f v${{ env.current_version }}
           git push -f origin v${{ env.current_version }}
 
+      - name: Set gradlew permission
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon
 
