@@ -1,3 +1,7 @@
-# Configuration pour NoMoreSpawnProtect
-disable-spawn-protection: true
+# Configuration for CipaUtils
+# Minimum duration (in minutes) of a grave's life (default 24h = 1440)
+grave-min-expiry-minutes: 1440
+# Maximum duration (in minutes) of a grave's life (default 48h = 2880)
+grave-max-expiry-minutes: 2880
 
+disable-spawn-protection: true

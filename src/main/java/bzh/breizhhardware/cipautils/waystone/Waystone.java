@@ -1,6 +1,7 @@
 package bzh.breizhhardware.cipautils.waystone;
 
 import org.bukkit.Location;
+import org.bukkit.inventory.ItemStack;
 
 public class Waystone {
     private final String id;
@@ -8,6 +9,7 @@ public class Waystone {
     private final String owner;
     private final Location location;
     private boolean isPublic;
+    private ItemStack customItem;
 
     public Waystone(String id, String name, String owner, Location location, boolean isPublic) {
         this.id = id;
@@ -43,6 +45,14 @@ public class Waystone {
 
     public void setPublic(boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    public ItemStack getCustomItem() {
+        return customItem;
+    }
+
+    public void setCustomItem(ItemStack customItem) {
+        this.customItem = customItem;
     }
 
     @Override
