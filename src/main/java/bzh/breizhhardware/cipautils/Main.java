@@ -45,6 +45,7 @@ public class Main extends JavaPlugin {
         getCommand("nomorespawnprotect").setExecutor(this);
         getCommand("waystone").setExecutor(this);
         getCommand("toggledeathmsg").setExecutor(graveListener.getToggleDeathMsgCommand());
+        getCommand("cipautils").setExecutor(this);
 
         // Apply settings
         if (spawnProtectionDisabled) {
@@ -72,6 +73,18 @@ public class Main extends JavaPlugin {
 
         if (cmd.getName().equalsIgnoreCase("waystone")) {
             return handleWaystoneCommand(sender, args);
+        }
+
+        if (cmd.getName().equalsIgnoreCase("cipautils")) {
+            // if arg is bug send bug report link
+            if (args.length > 0 && args[0].equalsIgnoreCase("bug")) {
+                sender.sendMessage("§eTo report a bug, please visit: §9https://github.com/BreizhHardware/CipaUtils/issues/new");
+                return true;
+            }
+            // if no args is provided send all available commands
+            sender.sendMessage("§e--- CipaUtils Commands ---");
+            sender.sendMessage("§f/cipautils bug §7- Report a bug");
+            return true;
         }
 
         return false;
