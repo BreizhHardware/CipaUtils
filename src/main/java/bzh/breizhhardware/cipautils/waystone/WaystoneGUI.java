@@ -45,7 +45,7 @@ public class WaystoneGUI {
         addDecorationItems(gui, size);
         ItemStack currentInfo = createCurrentWaystoneInfo(currentWaystone);
         gui.setItem(size - 5, currentInfo);
-        // Boutons de navigation
+        // Navigation buttons
         if (page > 0) {
             ItemStack prev = new ItemStack(Material.ARROW);
             ItemMeta prevMeta = prev.getItemMeta();
