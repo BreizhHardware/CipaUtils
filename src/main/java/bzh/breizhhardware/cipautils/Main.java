@@ -1,6 +1,7 @@
 package bzh.breizhhardware.cipautils;
 
 import bzh.breizhhardware.cipautils.customRecipe.RecipeManager;
+import bzh.breizhhardware.cipautils.disenchant.DisenchantListener;
 import bzh.breizhhardware.cipautils.grave.GraveListener;
 import bzh.breizhhardware.cipautils.waystone.Waystone;
 import bzh.breizhhardware.cipautils.waystone.WaystoneListener;
@@ -22,7 +23,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        
+
         // Save the default configuration
         saveDefaultConfig();
 
@@ -41,6 +42,10 @@ public class Main extends JavaPlugin {
         // Register grave listener
         graveListener = new GraveListener(this);
         getServer().getPluginManager().registerEvents(graveListener, this);
+
+        DisenchantListener disenchantListener = new DisenchantListener(this);
+        getServer().getPluginManager().registerEvents(disenchantListener, this);
+
 
         // Register commands
         getCommand("nomorespawnprotect").setExecutor(this);
