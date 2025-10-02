@@ -22,6 +22,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        
         // Save the default configuration
         saveDefaultConfig();
 
