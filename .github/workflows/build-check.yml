@@ -17,5 +17,8 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
+      - name: Set gradlew permission
+        run: chmod +x ./gradlew
+
       - name: Build with Gradle
         run: ./gradlew clean build --no-daemon
