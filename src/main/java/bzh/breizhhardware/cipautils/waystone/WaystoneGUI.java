@@ -56,7 +56,7 @@ public class WaystoneGUI {
         if (page < totalPages - 1) {
             ItemStack next = new ItemStack(Material.ARROW);
             ItemMeta nextMeta = next.getItemMeta();
-            nextMeta.setDisplayName(ChatColor.YELLOW + "Next page");
+            nextMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
             next.setItemMeta(nextMeta);
             gui.setItem(size - 8, next);
         }
