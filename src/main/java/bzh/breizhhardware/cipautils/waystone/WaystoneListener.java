@@ -151,7 +151,7 @@ public class WaystoneListener implements Listener {
 
         // Previous page
         if (clickedItem.getType() == Material.ARROW && clickedItem.getItemMeta() != null &&
-            ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).equals("Page précédente")) {
+            ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).equals("Previous page")) {
             if (page > 0) {
                 page--;
                 currentPage.put(playerId, page);
