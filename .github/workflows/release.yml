@@ -35,7 +35,7 @@ jobs:
       - name: Get current version
         id: get_version
         run: |
-          CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -E '^[0-9]+(\.[0-9]+)*$' | tail -1)
+          CURRENT_VERSION=$(grep "^version =" build.gradle | sed -E "s/version = '([0-9.]+)'/\1/")
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_ENV
 
       - name: Tag current commit (old version)
@@ -43,15 +43,18 @@ jobs:
           git tag -f v${{ env.current_version }}
           git push -f origin v${{ env.current_version }}
 
-      - name: Build with Maven
-        run: mvn clean package
+      - name: Set gradlew permission
+        run: chmod +x ./gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew clean build --no-daemon
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ env.current_version }}
           name: CipaUtils v${{ env.current_version }}
-          files: target/*.jar
+          files: build/libs/*.jar
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
