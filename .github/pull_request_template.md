@@ -4,7 +4,7 @@ Please briefly describe the changes introduced by this Pull Request.
 
 ## Checklist
 
-- [ ] I have bumped the version in all required files (`pom.xml`, `plugin.yml`, `start-test-server.bat`, `start-test-server.sh`) (mandatory for a PR from `dev` to `main`)
+- [ ] I have bumped the version in all required files (`build.gradle`, `plugin.yml`, `start-test-server.bat`, `start-test-server.sh`) (mandatory for a PR from `dev` to `main`)
 - [ ] I have tested the changes locally
 - [ ] I have updated the documentation if needed
 - [ ] I have set the destination branch to `dev` (unless it's a hotfix to `main`)
@@ -26,4 +26,4 @@ Please briefly describe the changes introduced by this Pull Request.
 
 ---
 > **IMPORTANT:**
-> For a Pull Request from `dev` to `main`, make sure you have bumped the version in all of the following files: `pom.xml`, `plugin.yml`, `start-test-server.bat`, and `start-test-server.sh`.
+> For a Pull Request from `dev` to `main`, make sure you have bumped the version in all of the following files: `build.gradle`, `plugin.yml`, `start-test-server.bat`, and `start-test-server.sh`.
