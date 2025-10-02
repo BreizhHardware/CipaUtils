@@ -29,7 +29,7 @@ public class WaystoneGUI {
             player.sendMessage(ChatColor.YELLOW + "No other waystones available for teleportation.");
             return;
         }
-        int waystonesPerPage = 45; // 5 lignes de 9, dernière ligne pour les contrôles
+        int waystonesPerPage = 45; // 5 rows of 9, last row for controls
         int totalPages = (int) Math.ceil((double) availableWaystones.size() / waystonesPerPage);
         if (page < 0) page = 0;
         if (page >= totalPages) page = totalPages - 1;
