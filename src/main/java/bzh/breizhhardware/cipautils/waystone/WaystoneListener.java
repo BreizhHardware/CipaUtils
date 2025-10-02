@@ -162,7 +162,7 @@ public class WaystoneListener implements Listener {
 
         // Next page
         if (clickedItem.getType() == Material.ARROW && clickedItem.getItemMeta() != null &&
-            ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).equals("Next page)) {
+            ChatColor.stripColor(clickedItem.getItemMeta().getDisplayName()).equals("Next page")) {
             page++;
             currentPage.put(playerId, page);
             waystoneGUI.openWaystoneMenu(player, currentWaystone, page);
