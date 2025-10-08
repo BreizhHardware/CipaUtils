@@ -10,8 +10,8 @@ NC='\033[0m' # No Color
 # Variables de configuration
 SERVER_DIR="test-server"
 PLUGIN_JAR=CipaUtils-1.4.jar
-PAPER_VERSION="1.21.8"
-PAPER_BUILD="60"
+PAPER_VERSION="1.21.10"
+PAPER_BUILD="64"
 
 echo "================================"
 echo "    CipaUtils - Test Server"
