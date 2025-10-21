@@ -1,28 +1,44 @@
 # plugin.yml
 name: CipaUtils
-version: 1.3
+version: 1.4
 main: bzh.breizhhardware.cipautils.Main
 api-version: 1.21
 commands:
   nomorespawnprotect:
-    description: Active ou désactive la protection du spawn
-    usage: /nomorespawnprotect - Bascule la protection du spawn (active/désactive)
+    description: Enable/disable spawn protection
+    usage: /nomorespawnprotect - Toggle spawn protection
+    aliases:
+      - nsp
   waystone:
-    description: Commandes pour les waystones
+    description: Waystone command
     usage: /waystone
+    aliases:
+      - ws
   toggledeathmsg:
-    description: Active/désactive le message d'info sur la récupération automatique des tombes
+    description: Enable/disable death messages about grave recover
     usage: /toggledeathmsg
+    aliases:
+      - tdm
+  cipautils:
+    description: Commands for CipaUtils
+    usage: /cipautils
+    aliases:
+      - cu
+  chunkloader:
+    description: Give a chunkloader
+    usage: /chunkloader give
+    aliases:
+      - cl
 permissions:
   nomorespawnprotect.admin:
-    description: Permet de contrôler les paramètres du plugin
+    description: Allow to manage spawn protection
     default: op
   cipautils.waystone.use:
-    description: Permet d'utiliser les waystones
+    description: Allow to use waystones
     default: true
   cipautils.waystone.give:
-    description: Permet d'obtenir des items waystone
+    description: Allow to give waystones
     default: op
   cipautils.waystone.admin:
-    description: Permet de détruire toutes les waystones
+    description: Allow to manage waystones
     default: op

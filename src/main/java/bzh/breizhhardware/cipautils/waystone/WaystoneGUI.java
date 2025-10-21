@@ -22,71 +22,80 @@ public class WaystoneGUI {
         this.waystoneManager = waystoneManager;
     }
 
-    public void openWaystoneMenu(Player player, Waystone currentWaystone) {
+    public void openWaystoneMenu(Player player, Waystone currentWaystone, int page) {
         List<Waystone> availableWaystones = waystoneManager.getAvailableWaystones(player);
-        
-        // Remove the current waystone from the list
         availableWaystones.removeIf(w -> w.getId().equals(currentWaystone.getId()));
-        
         if (availableWaystones.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "Aucune autre waystone disponible pour la téléportation !");
+            player.sendMessage(ChatColor.YELLOW + "No other waystones available for teleportation.");
             return;
         }
-
-        // Calculate the required size (leave one row for controls)
-        int waystoneSlots = availableWaystones.size();
-        int lines = Math.max(2, (waystoneSlots + 8) / 9 + 1); // +1 row for controls
-        int size = Math.min(54, lines * 9);
-
-        Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Téléportation");
-        
-        // Add all available waystones (reserve only the last row)
-        int maxWaystoneSlots = size - 9; // Reserve the last row for controls
-        for (int i = 0; i < availableWaystones.size() && i < maxWaystoneSlots; i++) {
+        int waystonesPerPage = 45; // 5 rows of 9, last row for controls
+        int totalPages = (int) Math.ceil((double) availableWaystones.size() / waystonesPerPage);
+        if (page < 0) page = 0;
+        if (page >= totalPages) page = totalPages - 1;
+        int size = 54;
+        Inventory gui = Bukkit.createInventory(null, size, ChatColor.DARK_PURPLE + "Waystones - Page " + (page+1) + "/" + totalPages);
+        int start = page * waystonesPerPage;
+        int end = Math.min(start + waystonesPerPage, availableWaystones.size());
+        for (int i = start; i < end; i++) {
             Waystone waystone = availableWaystones.get(i);
             ItemStack item = createWaystoneMenuItem(waystone, player);
-            gui.setItem(i, item);
+            gui.setItem(i - start, item);
         }
-
-        // Add decoration items
         addDecorationItems(gui, size);
-        
-        // Add an info item about the current waystone
         ItemStack currentInfo = createCurrentWaystoneInfo(currentWaystone);
         gui.setItem(size - 5, currentInfo);
-        
-        // Close item
+        // Navigation buttons
+        if (page > 0) {
+            ItemStack prev = new ItemStack(Material.ARROW);
+            ItemMeta prevMeta = prev.getItemMeta();
+            prevMeta.setDisplayName(ChatColor.YELLOW + "Previous page");
+            prev.setItemMeta(prevMeta);
+            gui.setItem(size - 9, prev);
+        }
+        if (page < totalPages - 1) {
+            ItemStack next = new ItemStack(Material.ARROW);
+            ItemMeta nextMeta = next.getItemMeta();
+            nextMeta.setDisplayName(ChatColor.YELLOW + "Next page");
+            next.setItemMeta(nextMeta);
+            gui.setItem(size - 8, next);
+        }
         ItemStack closeItem = new ItemStack(Material.BARRIER);
         ItemMeta closeMeta = closeItem.getItemMeta();
-        closeMeta.setDisplayName(ChatColor.RED + "Fermer");
+        closeMeta.setDisplayName(ChatColor.RED + "Close");
         closeItem.setItemMeta(closeMeta);
         gui.setItem(size - 1, closeItem);
-        
         player.openInventory(gui);
         player.playSound(player.getLocation(), Sound.BLOCK_PORTAL_AMBIENT, 0.7f, 1.2f);
     }
 
+    // Legacy method kept for compatibility
+    public void openWaystoneMenu(Player player, Waystone currentWaystone) {
+        openWaystoneMenu(player, currentWaystone, 0);
+    }
+
     private ItemStack createWaystoneMenuItem(Waystone waystone, Player player) {
-        ItemStack item = new ItemStack(Material.ENDER_PEARL);
+        ItemStack item;
+        if (waystone.getCustomItem() != null && !waystone.getCustomItem().getType().isAir()) {
+            item = waystone.getCustomItem().clone();
+        } else {
+            item = new ItemStack(Material.ENDER_PEARL);
+        }
         ItemMeta meta = item.getItemMeta();
-        
         meta.setDisplayName(ChatColor.AQUA + waystone.getName());
-        
         String ownerName = getPlayerName(waystone.getOwner());
         String locationStr = String.format("(%d, %d, %d)", 
             waystone.getLocation().getBlockX(),
             waystone.getLocation().getBlockY(),
             waystone.getLocation().getBlockZ());
-        
         meta.setLore(Arrays.asList(
-            ChatColor.GRAY + "Propriétaire: " + ChatColor.WHITE + ownerName,
+            ChatColor.GRAY + "Owner: " + ChatColor.WHITE + ownerName,
             ChatColor.GRAY + "Position: " + ChatColor.WHITE + locationStr,
-            ChatColor.GRAY + "Monde: " + ChatColor.WHITE + waystone.getLocation().getWorld().getName(),
+            ChatColor.GRAY + "World: " + ChatColor.WHITE + waystone.getLocation().getWorld().getName(),
             "",
-            ChatColor.GREEN + "Cliquez pour vous téléporter !",
+            ChatColor.GREEN + "Click to teleport !",
             ChatColor.GOLD + "ID: " + waystone.getId()
         ));
-        
         item.setItemMeta(meta);
         return item;
     }
@@ -95,12 +104,12 @@ public class WaystoneGUI {
         ItemStack item = new ItemStack(Material.LODESTONE);
         ItemMeta meta = item.getItemMeta();
         
-        meta.setDisplayName(ChatColor.GOLD + "Waystone Actuelle");
+        meta.setDisplayName(ChatColor.GOLD + "Current Waystone");
         
         String ownerName = getPlayerName(waystone.getOwner());
         meta.setLore(Arrays.asList(
-            ChatColor.GRAY + "Nom: " + ChatColor.WHITE + waystone.getName(),
-            ChatColor.GRAY + "Propriétaire: " + ChatColor.WHITE + ownerName,
+            ChatColor.GRAY + "Name: " + ChatColor.WHITE + waystone.getName(),
+            ChatColor.GRAY + "Owner: " + ChatColor.WHITE + ownerName,
             ChatColor.GRAY + "Position: " + ChatColor.WHITE + 
                 waystone.getLocation().getBlockX() + ", " +
                 waystone.getLocation().getBlockY() + ", " +
@@ -132,7 +141,7 @@ public class WaystoneGUI {
             
             return plugin.getServer().getOfflinePlayer(java.util.UUID.fromString(uuid)).getName();
         } catch (Exception e) {
-            return "Inconnu";
+            return "Unknown";
         }
     }
 

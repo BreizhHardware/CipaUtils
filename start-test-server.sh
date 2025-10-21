@@ -9,9 +9,9 @@ NC='\033[0m' # No Color
 
 # Variables de configuration
 SERVER_DIR="test-server"
-PLUGIN_JAR=CipaUtils-1.3.jar
-PAPER_VERSION="1.21.8"
-PAPER_BUILD="60"
+PLUGIN_JAR=CipaUtils-1.4.jar
+PAPER_VERSION="1.21.10"
+PAPER_BUILD="64"
 
 echo "================================"
 echo "    CipaUtils - Test Server"
@@ -35,9 +35,9 @@ print_warning() {
     echo -e "${YELLOW}⚠ $1${NC}"
 }
 
-# Vérifier que Maven est installé
-if ! command -v mvn &> /dev/null; then
-    print_error "Maven n'est pas installé ou pas dans le PATH !"
+# Vérifier que Gradle est installé
+if ! command -v ./gradlew &> /dev/null && ! command -v gradle &> /dev/null; then
+    print_error "Gradle n'est pas installé ou pas dans le PATH !"
     exit 1
 fi
 
@@ -47,95 +47,40 @@ if ! command -v java &> /dev/null; then
     exit 1
 fi
 
-# [1/4] Compilation du plugin
-print_step "1/4" "Compilation du plugin..."
-if mvn clean package -q; then
-    print_success "Plugin compilé avec succès"
-else
-    print_error "Erreur lors de la compilation !"
+# [1/4] Compilation du plugin avec Gradle
+print_step "1/4" "Compilation du plugin avec Gradle..."
+./gradlew clean build --no-daemon
+if [ $? -ne 0 ]; then
+    print_error "Erreur lors de la compilation Gradle !"
     exit 1
 fi
-
-echo
+print_success "Plugin compilé avec succès"
 
 # [2/4] Préparation du serveur de test
 print_step "2/4" "Préparation du serveur de test..."
-
-# Créer le dossier du serveur s'il n'existe pas
 mkdir -p "$SERVER_DIR/plugins"
 
-# Télécharger PaperMC si nécessaire
+# Copier le plugin compilé
+cp -f "build/libs/$PLUGIN_JAR" "$SERVER_DIR/plugins/"
+print_success "Plugin copié dans le dossier plugins du serveur"
+
+# [3/4] Télécharger PaperMC si nécessaire
 if [ ! -f "$SERVER_DIR/server.jar" ]; then
     print_warning "Téléchargement de PaperMC $PAPER_VERSION..."
-
-    # Vérifier que curl ou wget est disponible
-    if command -v curl &> /dev/null; then
-        curl -L -o "$SERVER_DIR/server.jar" \
-            "https://api.papermc.io/v2/projects/paper/versions/$PAPER_VERSION/builds/$PAPER_BUILD/downloads/paper-$PAPER_VERSION-$PAPER_BUILD.jar"
-    elif command -v wget &> /dev/null; then
-        wget -O "$SERVER_DIR/server.jar" \
-            "https://api.papermc.io/v2/projects/paper/versions/$PAPER_VERSION/builds/$PAPER_BUILD/downloads/paper-$PAPER_VERSION-$PAPER_BUILD.jar"
-    else
-        print_error "Ni curl ni wget n'est disponible pour télécharger PaperMC !"
-        exit 1
-    fi
-
-    if [ $? -eq 0 ]; then
-        print_success "PaperMC téléchargé"
-    else
+    curl -o "$SERVER_DIR/server.jar" "https://api.papermc.io/v2/projects/paper/versions/$PAPER_VERSION/builds/$PAPER_BUILD/downloads/paper-$PAPER_VERSION-$PAPER_BUILD.jar"
+    if [ $? -ne 0 ]; then
         print_error "Erreur lors du téléchargement de PaperMC !"
         exit 1
     fi
+    print_success "PaperMC téléchargé"
 else
     print_success "PaperMC déjà présent"
 fi
 
-# [3/4] Installation du plugin
-print_step "3/4" "Installation du plugin..."
-if cp "target/$PLUGIN_JAR" "$SERVER_DIR/plugins/$PLUGIN_JAR" 2>/dev/null; then
-    print_success "Plugin installé"
-else
-    print_error "Erreur lors de la copie du plugin !"
-    exit 1
-fi
-
-# Créer l'EULA si nécessaire
-if [ ! -f "$SERVER_DIR/eula.txt" ]; then
-    echo "eula=true" > "$SERVER_DIR/eula.txt"
-    print_success "EULA accepté automatiquement"
-fi
-
-# Créer les propriétés du serveur avec des paramètres de test
-if [ ! -f "$SERVER_DIR/server.properties" ]; then
-    print_step "" "Configuration du serveur de test..."
-    cat > "$SERVER_DIR/server.properties" << EOF
-# Configuration serveur de test - CipaUtils
-server-port=25565
-gamemode=creative
-difficulty=peaceful
-spawn-protection=0
-max-players=10
-online-mode=false
-enable-command-block=true
-motd=CipaUtils - Serveur de Test
-level-name=test-world
-level-type=minecraft:flat
-generate-structures=false
-spawn-monsters=false
-spawn-animals=false
-pvp=false
-EOF
-    print_success "Configuration créée"
-fi
-
-echo
-
-# [4/4] Démarrage du serveur
-print_step "4/4" "Démarrage du serveur..."
-print_warning "Le serveur va démarrer dans 3 secondes..."
-sleep 3
-
+# [4/4] Lancer le serveur
+print_step "4/4" "Lancement du serveur..."
 cd "$SERVER_DIR"
+java -jar server.jar nogui
 
 echo
 echo -e "${GREEN}========================================${NC}"
