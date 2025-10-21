@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+}
+
+group = 'bzh.breizhhardware'
+version = '1.4'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+dependencies {
+    compileOnly 'com.velocitypowered:velocity-api:3.4.0-SNAPSHOT'
+    compileOnly 'io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT'
+}
+
+jar {
+    archiveBaseName.set('CipaUtils')
+    manifest {
+        attributes(
+            'Main-Class': 'bzh.breizhhardware.Main'
+        )
+    }
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
