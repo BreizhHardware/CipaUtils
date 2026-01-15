@@ -42,3 +42,9 @@ permissions:
   cipautils.waystone.admin:
     description: Allow to manage waystones
     default: op
+  cipautils.chunkloader.give:
+    description: Allow to give chunkloaders
+    default: op
+  cipautils.chunkloader.place:
+    description: Allow to place and manage chunkloaders
+    default: op
