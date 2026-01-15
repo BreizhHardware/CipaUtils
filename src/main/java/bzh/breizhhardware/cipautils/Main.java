@@ -113,13 +113,13 @@ public class Main extends JavaPlugin implements Listener {
 
         if (command.getName().equalsIgnoreCase("chunkloader")) {
             if (!(sender instanceof Player)) {
-                sender.sendMessage(ChatColor.RED + "Commande réservée aux joueurs.");
+                sender.sendMessage(ChatColor.RED + "This command is only available to players.");
                 return true;
             }
             Player player = (Player) sender;
             if (args.length > 0 && args[0].equalsIgnoreCase("give")) {
                 player.getInventory().addItem(chunkLoaderManager.getChunkLoaderItem());
-                player.sendMessage(ChatColor.AQUA + "Vous avez reçu un chunkloader !");
+                player.sendMessage(ChatColor.AQUA + "You have received a chunkloader!");
                 return true;
             }
             player.sendMessage(ChatColor.YELLOW + "/chunkloader give");
