@@ -1,11 +1,11 @@
 # plugin.yml
 name: CipaUtils
-version: 1.4
+version: 1.5
 main: bzh.breizhhardware.cipautils.Main
 api-version: 1.21
 commands:
   nomorespawnprotect:
-    description: Enable/disable spawn protection
+    description: Enables/disables spawn protection
     usage: /nomorespawnprotect - Toggle spawn protection
     aliases:
       - nsp

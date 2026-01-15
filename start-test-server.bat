@@ -8,7 +8,7 @@ echo.
 
 :: Variables de configuration
 set SERVER_DIR=test-server
-set PLUGIN_JAR=CipaUtils-1.4.jar
+set PLUGIN_JAR=CipaUtils-1.5.jar
 set PAPER_VERSION=1.21.10
 set PAPER_BUILD=64
 

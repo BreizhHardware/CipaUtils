@@ -175,6 +175,14 @@ public class WaystoneListener implements Listener {
             Waystone targetWaystone = waystoneGUI.getWaystoneFromMenuItem(clickedItem);
 
             if (targetWaystone != null) {
+                Waystone currentWaystone = playerCurrentWaystone.get(player.getUniqueId());
+
+                if (currentWaystone == null) {
+                    player.sendMessage(ChatColor.RED + "Error: Waystone information lost !");
+                    player.closeInventory();
+                    return;
+                }
+
                 // Check if the player can access this waystone
                 if (!targetWaystone.isPublic() && !targetWaystone.getOwner().equals(player.getUniqueId().toString())) {
                     player.sendMessage(ChatColor.RED + "You cannot access this waystone!");
