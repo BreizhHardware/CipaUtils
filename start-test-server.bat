@@ -8,9 +8,9 @@ echo.
 
 :: Variables de configuration
 set SERVER_DIR=test-server
-set PLUGIN_JAR=CipaUtils-1.4.jar
-set PAPER_VERSION=1.21.10
-set PAPER_BUILD=64
+set PLUGIN_JAR=CipaUtils-1.5.jar
+set PAPER_VERSION=1.21.11
+set PAPER_BUILD=92
 
 :: Compilation du plugin avec Gradle
 call gradlew.bat clean build
