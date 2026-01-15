@@ -125,7 +125,11 @@ public class ChunkLoaderManager implements Listener {
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
-        if (!event.getItemInHand().hasItemMeta() || !event.getItemInHand().getItemMeta().getDisplayName().equals(CHUNKLOADER_NAME)) return;
+        ItemStack itemInHand = event.getItemInHand();
+        ItemMeta itemMeta = (itemInHand != null) ? itemInHand.getItemMeta() : null;
+        if (itemMeta == null || !itemMeta.hasDisplayName() || !CHUNKLOADER_NAME.equals(itemMeta.getDisplayName())) {
+            return;
+        }
         if (playerChunkLoaders.containsKey(player.getUniqueId())) {
             player.sendMessage("§cYou already have an active chunkloader !");
             event.setCancelled(true);
