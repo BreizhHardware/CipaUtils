@@ -175,7 +175,6 @@ public class WaystoneListener implements Listener {
             Waystone targetWaystone = waystoneGUI.getWaystoneFromMenuItem(clickedItem);
 
             if (targetWaystone != null) {
-                Waystone currentWaystone = playerCurrentWaystone.get(player.getUniqueId());
 
                 if (currentWaystone == null) {
                     player.sendMessage(ChatColor.RED + "Error: Waystone information lost !");
