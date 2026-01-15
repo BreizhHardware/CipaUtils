@@ -73,7 +73,6 @@ public class Main extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new WaystoneListener(this, waystoneManager), this);
         // Register grave listener
         getServer().getPluginManager().registerEvents(graveListener, this);
-        getServer().getPluginManager().registerEvents(this, this);
     }
 
     private void registerCommands() {
@@ -107,10 +106,6 @@ public class Main extends JavaPlugin implements Listener {
             return handleSpawnProtectCommand(sender, args);
         }
 
-        if (command.getName().equalsIgnoreCase("waystone")) {
-            return handleWaystoneCommand(sender, args);
-        }
-
         if (command.getName().equalsIgnoreCase("chunkloader")) {
             if (!(sender instanceof Player)) {
                 sender.sendMessage(ChatColor.RED + "This command is only available to players.");
@@ -118,7 +113,7 @@ public class Main extends JavaPlugin implements Listener {
             }
             Player player = (Player) sender;
             if (args.length > 0 && args[0].equalsIgnoreCase("give")) {
-                player.getInventory().addItem(chunkLoaderManager.getChunkLoaderItem());
+                player.getInventory().addItem(ChunkLoaderManager.getChunkLoaderItem());
                 player.sendMessage(ChatColor.AQUA + "You have received a chunkloader!");
                 return true;
             }
@@ -172,7 +167,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public boolean handleWaystoneCommand(CommandSender sender, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage(ChatColor.RED + "Cette commande ne peut être utilisée que par un joueur !");
+            sender.sendMessage(ChatColor.RED + "This command can only be used by a player!");
             return true;
         }
 
@@ -200,14 +195,14 @@ public class Main extends JavaPlugin implements Listener {
 
     public boolean handleWaystoneGive(Player player, String[] args) {
         if (!player.hasPermission("cipautils.waystone.give")) {
-            player.sendMessage(ChatColor.RED + "Vous n'avez pas la permission d'utiliser cette commande !");
+            player.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
             return true;
         }
 
         ItemStack waystoneItem = WaystoneListener.createWaystoneItem();
         player.getInventory().addItem(waystoneItem);
-        player.sendMessage(ChatColor.GREEN + "Waystone vierge ajoutée à votre inventaire !");
-        player.sendMessage(ChatColor.YELLOW + "Vous pouvez aussi la crafter avec la recette !");
+        player.sendMessage(ChatColor.GREEN + "Empty waystone added to your inventory!");
+        player.sendMessage(ChatColor.YELLOW + "You can also craft it with the recipe!");
         return true;
     }
 
@@ -215,13 +210,13 @@ public class Main extends JavaPlugin implements Listener {
         List<Waystone> waystones = waystoneManager.getAvailableWaystones(player);
 
         if (waystones.isEmpty()) {
-            player.sendMessage(ChatColor.YELLOW + "Aucune waystone disponible !");
-            player.sendMessage(ChatColor.GRAY + "Craftez une waystone et placez-la pour commencer !");
+            player.sendMessage(ChatColor.YELLOW + "No waystone available!");
+            player.sendMessage(ChatColor.GRAY + "Craft and place a waystone to start!");
             return true;
         }
 
-        player.sendMessage(ChatColor.BLUE + "=== Waystones disponibles ===");
-        player.sendMessage(ChatColor.GRAY + "Utilisez une waystone pour vous téléporter vers les autres");
+        player.sendMessage(ChatColor.BLUE + "=== Available Waystones ===");
+        player.sendMessage(ChatColor.GRAY + "Use a waystone to teleport to others");
         for (Waystone waystone : waystones) {
             String ownerName = getPlayerName(waystone.getOwner());
             String locationStr = String.format("(%d, %d, %d)",
@@ -238,7 +233,7 @@ public class Main extends JavaPlugin implements Listener {
 
     public boolean handleWaystoneInfo(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /waystone info <nom>");
+            player.sendMessage(ChatColor.RED + "Usage: /waystone info <name>");
             return true;
         }
 
@@ -250,25 +245,25 @@ public class Main extends JavaPlugin implements Listener {
 
         Waystone waystone = waystoneManager.getWaystoneByName(name);
         if (waystone == null) {
-            player.sendMessage(ChatColor.RED + "Waystone '" + name + "' introuvable !");
+            player.sendMessage(ChatColor.RED + "Waystone '" + name + "' not found!");
             return true;
         }
 
-        player.sendMessage(ChatColor.BLUE + "=== Informations Waystone ===");
-        player.sendMessage(ChatColor.GREEN + "Nom: " + waystone.getName());
-        player.sendMessage(ChatColor.GREEN + "Propriétaire: " + getPlayerName(waystone.getOwner()));
-        player.sendMessage(ChatColor.GREEN + "Publique: " + (waystone.isPublic() ? "Oui" : "Non"));
+        player.sendMessage(ChatColor.BLUE + "=== Waystone Information ===");
+        player.sendMessage(ChatColor.GREEN + "Name: " + waystone.getName());
+        player.sendMessage(ChatColor.GREEN + "Owner: " + getPlayerName(waystone.getOwner()));
+        player.sendMessage(ChatColor.GREEN + "Public: " + (waystone.isPublic() ? "Yes" : "No"));
         player.sendMessage(ChatColor.GREEN + "Position: " +
                 waystone.getLocation().getBlockX() + ", " +
                 waystone.getLocation().getBlockY() + ", " +
                 waystone.getLocation().getBlockZ());
-        player.sendMessage(ChatColor.GREEN + "Monde: " + waystone.getLocation().getWorld().getName());
+        player.sendMessage(ChatColor.GREEN + "World: " + waystone.getLocation().getWorld().getName());
         return true;
     }
 
     public boolean handleWaystoneRename(Player player, String[] args) {
         if (args.length < 2) {
-            player.sendMessage(ChatColor.RED + "Usage: /waystone rename <nouveau_nom>");
+            player.sendMessage(ChatColor.RED + "Usage: /waystone rename <new_name>");
             return true;
         }
 
@@ -290,7 +285,7 @@ public class Main extends JavaPlugin implements Listener {
         }
 
         if (closestWaystone == null) {
-            player.sendMessage(ChatColor.RED + "Aucune de vos waystones trouvée à proximité !");
+            player.sendMessage(ChatColor.RED + "No waystone of yours found nearby!");
             return true;
         }
 
@@ -304,28 +299,28 @@ public class Main extends JavaPlugin implements Listener {
         closestWaystone.setName(newName);
         waystoneManager.saveWaystones();
 
-        player.sendMessage(ChatColor.GREEN + "Waystone renommée de '" + oldName + "' vers '" + newName + "' !");
+        player.sendMessage(ChatColor.GREEN + "Waystone renamed from '" + oldName + "' to '" + newName + "'!");
         return true;
     }
 
     public void sendWaystoneHelp(Player player) {
-        player.sendMessage(ChatColor.BLUE + "=== Commandes Waystone ===");
-        player.sendMessage(ChatColor.GOLD + "Recette de craft:");
+        player.sendMessage(ChatColor.BLUE + "=== Waystone Commands ===");
+        player.sendMessage(ChatColor.GOLD + "Crafting recipe:");
         player.sendMessage(ChatColor.YELLOW + "  E D E    E = Ender Pearl");
         player.sendMessage(ChatColor.YELLOW + "  D L D    D = Diamond");
         player.sendMessage(ChatColor.YELLOW + "  O O O    L = Lodestone, O = Obsidian");
         player.sendMessage("");
-        player.sendMessage(ChatColor.GREEN + "/waystone list" + ChatColor.GRAY + " - Afficher toutes les waystones");
-        player.sendMessage(ChatColor.GREEN + "/waystone info <nom>" + ChatColor.GRAY + " - Informations sur une waystone");
-        player.sendMessage(ChatColor.GREEN + "/waystone rename <nom>" + ChatColor.GRAY + " - Renommer votre waystone proche");
+        player.sendMessage(ChatColor.GREEN + "/waystone list" + ChatColor.GRAY + " - List all waystones");
+        player.sendMessage(ChatColor.GREEN + "/waystone info <name>" + ChatColor.GRAY + " - Info about a waystone");
+        player.sendMessage(ChatColor.GREEN + "/waystone rename <name>" + ChatColor.GRAY + " - Rename your nearby waystone");
         if (player.hasPermission("cipautils.waystone.give")) {
-            player.sendMessage(ChatColor.GREEN + "/waystone give" + ChatColor.GRAY + " - Obtenir un item waystone");
+            player.sendMessage(ChatColor.GREEN + "/waystone give" + ChatColor.GRAY + " - Get a waystone item");
         }
         player.sendMessage("");
-        player.sendMessage(ChatColor.BLUE + "Utilisation:");
-        player.sendMessage(ChatColor.GRAY + "• Craftez et placez une waystone");
-        player.sendMessage(ChatColor.GRAY + "• Clic droit sur une waystone pour ouvrir le menu de téléportation");
-        player.sendMessage(ChatColor.GRAY + "• Vous ne pouvez vous téléporter QUE depuis une autre waystone");
+        player.sendMessage(ChatColor.BLUE + "Usage:");
+        player.sendMessage(ChatColor.GRAY + "• Craft and place a waystone");
+        player.sendMessage(ChatColor.GRAY + "• Right click on a waystone to open the teleport menu");
+        player.sendMessage(ChatColor.GRAY + "• You can ONLY teleport from another waystone");
     }
 
     public String getPlayerName(String uuid) {
@@ -335,7 +330,7 @@ public class Main extends JavaPlugin implements Listener {
 
             return getServer().getOfflinePlayer(java.util.UUID.fromString(uuid)).getName();
         } catch (Exception e) {
-            return "Inconnu";
+            return "Unknown";
         }
     }
 

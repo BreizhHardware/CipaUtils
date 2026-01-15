@@ -70,9 +70,7 @@ public class RecipeManager {
     }
 
     private void registerChunkLoaderRecipe() {
-        bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager chunkLoaderManager =
-            new bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager(plugin);
-        ItemStack chunkLoader = chunkLoaderManager.getChunkLoaderItem();
+        ItemStack chunkLoader = bzh.breizhhardware.cipautils.chunkloader.ChunkLoaderManager.getChunkLoaderItem();
         NamespacedKey key = new NamespacedKey(plugin, "chunkloader");
         ShapedRecipe recipe = new ShapedRecipe(key, chunkLoader);
         recipe.shape(

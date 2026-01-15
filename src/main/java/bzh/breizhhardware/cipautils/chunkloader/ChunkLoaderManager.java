@@ -40,11 +40,11 @@ public class ChunkLoaderManager implements Listener {
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    public ItemStack getChunkLoaderItem() {
+    public static ItemStack getChunkLoaderItem() {
         ItemStack item = new ItemStack(CHUNKLOADER_BLOCK);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(CHUNKLOADER_NAME);
-        meta.setLore(Arrays.asList("§7Place for chunkload 3x3 chunks", "§7Shift + Right Click to pick up"));
+        meta.setLore(Arrays.asList("§7Place to load 3x3 chunks", "§7Shift + Right Click to pick up"));
         item.setItemMeta(meta);
         return item;
     }
@@ -87,7 +87,7 @@ public class ChunkLoaderManager implements Listener {
         try {
             dataConfig.save(dataFile);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().log(java.util.logging.Level.SEVERE, "Unable to save chunkloader data", e);
         }
     }
 
@@ -143,7 +143,7 @@ public class ChunkLoaderManager implements Listener {
             return;
         }
         if (playerChunkLoaders.containsKey(player.getUniqueId())) {
-            player.sendMessage("§cYou already have an active chunkloader !");
+            player.sendMessage("§cYou already have an active chunkloader!");
             event.setCancelled(true);
             return;
         }
@@ -153,7 +153,7 @@ public class ChunkLoaderManager implements Listener {
         playerChunkLoaders.put(player.getUniqueId(), block.getLocation());
         loadChunks(block.getLocation());
         saveData();
-        player.sendMessage("§aChunkloader placed !");
+        player.sendMessage("§aChunkloader placed!");
     }
 
     @EventHandler
@@ -182,7 +182,7 @@ public class ChunkLoaderManager implements Listener {
         Player player = event.getPlayer();
 
         if (!player.getUniqueId().equals(uuid) && !player.isOp()) {
-             player.sendMessage("§cThis chunkloader isn't yours.");
+             player.sendMessage("§cThis chunkloader is not yours.");
              return;
         }
 
@@ -206,7 +206,7 @@ public class ChunkLoaderManager implements Listener {
         // Show particles
         showChunkBoundaries(event.getPlayer(), loc);
 
-        StringBuilder sb = new StringBuilder("§eChunks loaded :\n");
+        StringBuilder sb = new StringBuilder("§eChunks loaded:\n");
         for (int dx = -1; dx <= 1; dx++) {
             for (int dz = -1; dz <= 1; dz++) {
                 sb.append("§7[").append(cx + dx).append(", ").append(cz + dz).append("] ");
