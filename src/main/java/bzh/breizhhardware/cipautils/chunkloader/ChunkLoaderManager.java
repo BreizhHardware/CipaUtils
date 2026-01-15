@@ -55,12 +55,24 @@ public class ChunkLoaderManager implements Listener {
             for (String uuidStr : dataConfig.getConfigurationSection("chunkloaders").getKeys(false)) {
                 UUID uuid = UUID.fromString(uuidStr);
                 String locStr = dataConfig.getString("chunkloaders." + uuidStr);
+                if (locStr == null) {
+                    plugin.getLogger().warning("Chunkloader location for UUID " + uuid + " is missing in config; skipping.");
+                    continue;
+                }
                 String[] parts = locStr.split(",");
-                World world = Bukkit.getWorld(parts[0]);
-                double x = Double.parseDouble(parts[1]);
-                double y = Double.parseDouble(parts[2]);
-                double z = Double.parseDouble(parts[3]);
-                playerChunkLoaders.put(uuid, new Location(world, x, y, z));
+                if (parts.length < 4) {
+                    plugin.getLogger().warning("Invalid chunkloader location format for UUID " + uuid + ": " + locStr + "; skipping.");
+                    continue;
+                }
+                try {
+                    World world = Bukkit.getWorld(parts[0]);
+                    double x = Double.parseDouble(parts[1]);
+                    double y = Double.parseDouble(parts[2]);
+                    double z = Double.parseDouble(parts[3]);
+                    playerChunkLoaders.put(uuid, new Location(world, x, y, z));
+                } catch (NumberFormatException e) {
+                    plugin.getLogger().warning("Invalid numeric values in chunkloader location for UUID " + uuid + ": " + locStr + "; skipping.");
+                }
             }
         }
     }
