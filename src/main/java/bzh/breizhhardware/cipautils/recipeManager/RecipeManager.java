@@ -94,7 +94,7 @@ public class RecipeManager {
         java.util.List<String> lore = java.util.Arrays.asList(
                 ChatColor.GRAY + "Place this block to create",
                 ChatColor.GRAY + "a point of teleportation.",
-                ChatColor.GOLD + "Craft: Ender Pearl + Diamants + Lodestone + Obsidian",
+                ChatColor.GOLD + "Craft: Ender Pearl + Diamonds + Lodestone + Obsidian",
                 ChatColor.BLUE + "Right-click a placed waystone to use it"
         );
         meta.setLore(lore);
